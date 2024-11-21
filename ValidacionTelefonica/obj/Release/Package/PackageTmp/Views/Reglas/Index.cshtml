@@ -1,0 +1,239 @@
+﻿@model IEnumerable<ValidacionTelefonica.Entities.ReglaValidacionConsultar>
+@{
+  ViewBag.Title = "Consultar reglas de validación"; //Titulo de la pestaña
+  ViewBag.HeaderIcon = "fa-cube";
+  ViewBag.HeaderTitle = "Consultar Reglas";
+  ViewBag.HeaderDescription = "Permite visualizar las reglas de validación";
+  //ViewBag.Header = false; // Si desea ocultar la cabecera
+
+  string lCoincidenciaLN = (ViewBag.CoincidenciaLN).ToString();
+  string lPlataforma = (ViewBag.Plataforma).ToString();
+  string lProyecto = (ViewBag.Proyecto).ToString();
+  string lCasa = (ViewBag.Casa).ToString();
+  string lOficina = (ViewBag.Oficina).ToString();
+  string lRef1 = (ViewBag.Referencia1).ToString();
+  string lRef2 = (ViewBag.Referencia2).ToString();
+  string lEstatusFinal = (ViewBag.EstatusFinal).ToString();
+  string lResultadoFinal = (ViewBag.ResultadoFinal).ToString();
+
+
+
+}
+
+@* Toda referencia de estilos escribir dentro de la secccion "styles" *@
+@section styles{
+  @* Utilice el Metodo @Url.ContentArea("~/*") para obtener la url relativa del archivo *@
+  <link href="@Url.ContentArea("~/Content/Site.css")" rel="stylesheet" />
+  <link href="@Url.ContentArea("~/Content/gridview.css")" rel="stylesheet" />
+}
+
+@* Button Bar *@
+<nav class="navbar-button">
+
+  <div class="nav">
+    <div class="btn-group">
+      <a href="@Url.Action("Registrar")" class="btn btn-default navbar-btn"><i class="fa fa-plus fa-fw"></i>Registrar</a>
+      <div></div>
+      <button id="btnBuscar" class="btn btn-default fltrgt" type="submit" onclick="Filtrar()"><i class="fa fa-search fa-fw"></i>Buscar</button>
+    </div>
+
+   
+  </div>
+
+  <div class="nav navbar-button-right">
+    <div class="btn-group">
+      <a href="@Request.RawUrl" class="btn btn-default navbar-btn" data-tooltip="" title="Recargar"><i class="fa fa-refresh"></i></a>
+    </div>
+  </div>
+</nav>
+
+<div>
+  <div class="table-responsive">
+    <div class="col-sm-12 table-header" id="Filtros" style="padding-bottom: 10px">
+      <div class="row">
+        <div class="col-sm-2 dataTables_reset txtrgt">
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-12 table-header" id="Filtros" style="padding-bottom: 10px">
+      <div class="row">
+
+        <div class="col-md-3">
+          @Html.Label("Coincidencia LN:")
+          @Html.DropDownListAsync("cboCoincidenciaLN", lCoincidenciaLN, " - Selecciona - ", tooltip: "CoincidenciaLN")
+        </div>
+
+        <div class="col-md-3">
+          @Html.Label("Plataforma:")
+          @Html.DropDownListAsync("cboPlataforma", lPlataforma, " - Selecciona - ", tooltip: "Plataforma")
+        </div>
+
+        <div class="col-md-3">
+          @Html.Label("Proyecto:")
+          @Html.DropDownListAsync("cboProyecto", lProyecto, " - Selecciona - ", tooltip: "Proyecto")
+        </div>
+
+        <div class="col-md-3">
+          @Html.Label("Casa:")
+          @Html.DropDownListAsync("cboCasa", lCasa, " - Selecciona - ", tooltip: "Casa")
+        </div>
+
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-3">
+          @Html.Label("Oficina:")
+          @Html.DropDownListAsync("cboOficina", lOficina, " - Selecciona - ", tooltip: "Oficina")
+        </div>
+
+        <div class="col-md-3">
+          @Html.Label("Referencia 1:")
+          @Html.DropDownListAsync("cboReferencia1", lRef1, " - Selecciona - ", tooltip: "Referencia1")
+        </div>
+
+        <div class="col-md-3">
+          @Html.Label("Referencia 2:")
+          @Html.DropDownListAsync("cboReferencia2", lRef2, " - Selecciona - ", tooltip: "Referencia2")
+        </div>
+
+        <div class="col-md-3">
+          @Html.Label("Estatus Final:")
+          @Html.DropDownListAsync("cboEstatusFinal", lEstatusFinal, " - Selecciona - ", tooltip: "EstatusFinal")
+        </div>
+
+
+      </div>
+      <div class="row">
+        <div class="col-md-3">
+          @Html.Label("Resultado Final:")
+          @Html.DropDownListAsync("cboResultadoFinal", lResultadoFinal, " - Selecciona - ", tooltip: "ResultadoFinal")
+        </div>
+
+        
+
+      </div>
+
+    </div>
+
+    <table class="table table-selectable table-dark table-hover table-condensed table-selectable" id="DataTable" style="">
+
+      <thead>
+        <tr>
+          <th class="text-center">CoincidenciaLN</th>
+          <th class="text-center">Plataforma</th>
+          <th class="text-center">Proyecto</th>
+          <th class="text-center">Casa</th>
+          <th class="text-center">Oficina</th>
+          <th class="text-center">Referencia 1</th>
+          <th class="text-center">Referencia 2</th>
+          <th class="text-center">Estatus Final</th>
+          <th class="text-center">Resultado Final</th>
+
+          <th class="text-center">¿Está Activo?</th>
+          <th class="text-center"><i class="fa fa-cog"></i></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @foreach (ValidacionTelefonica.Entities.ReglaValidacionConsultar lDatos in Model)
+        {
+          <tr>
+            <td class="text-center">@lDatos.NombreCoincidencia</td>
+            <td class="text-center">@lDatos.NombrePlataforma</td>
+            <td class="text-center">@lDatos.NombreProyecto</td>
+            <td class="text-center">@lDatos.NombreResultadoVTCasa</td>
+            <td class="text-center">@lDatos.NombreResultadoVTOficina</td>
+            <td class="text-center">@lDatos.NombreResultadoVTReferencia1</td>
+            <td class="text-center">@lDatos.NombreResultadoVTReferencia2</td>
+            <td class="text-center">@lDatos.NombreResultadoFinalEstatus</td>
+            <td class="text-center">@lDatos.NombreResultadoFinalVT</td>
+
+
+            <td class="text-center">
+              @if (lDatos.EstaActivo == true)
+              {
+                <span class="fa-stack fa-lg" aria-hidden="true" data-tooltip="" title="Activo">
+                  <i class="fa fa-circle fa-stack-2x text-info"></i>
+                  <i class="fa fa fa-check-circle fa-stack-1x fa-inverse"></i>
+                </span>
+              }
+              else
+              {
+                <span class="fa-stack fa-lg" aria-hidden="true" data-tooltip="" title="In-Activo">
+                  <i class="fa fa-circle fa-stack-2x"></i>
+                  <i class="fa fa-circle-thin fa-stack-1x fa-flag"></i>
+                </span>
+              }
+            </td>
+
+            <td class="text-center">
+              <div class="dropdown dropdown-row-menu">
+                <button class="btn btn-default dropdown-toggle text-left" type="button" data-toggle="dropdown" title="Opciones">
+                  <i class="fa fa-cog"></i>
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item" href="@Url.Action("Editar", "Reglas", new { pReglaValidacionID = lDatos.ReglaValidacionID})">
+                      <i class="fa fa-pencil-square-o fa-fw"></i>Editar
+                    </a>
+                  </li>
+
+                  <li>
+                    <a data-ajax="true" data-toggle="modal" data-target="#Modal" data-ajax-method="GET" data-ajax-mode="replace" data-ajax-update="#Modal" href="@Url.Action("_Eliminar", "Reglas", new { pReglaValidacionID = lDatos.ReglaValidacionID})" class="dropdown-item">
+                      <i class="fa fa-trash fa-fw"></i>Eliminar
+                    </a>
+
+                  </li>
+
+                </ul>
+              </div>
+            </td>
+
+          </tr>
+        }
+
+      </tbody>
+    </table>
+  </div>
+  @* TODO CONTENIDO HTML AQUÍ *@
+</div>
+
+@* Contenedor para cargar las pantallas modales *@
+<div class="modal fade" id="Modal" tabindex="-1" role="dialog"></div>
+
+@* Toda referencia de Scripts escribir dentro de la section "scripts" *@
+@section scripts{
+  @* Si realiza una referencia de un script el Metodo @Url.ContentArea("~/") ejem: <script type="text/javascript" src="@Url.ContentArea("~/Scripts/...")"></script> *@
+  @Scripts.Render("~/bundles/datatable")
+
+  <script>
+
+    $(document).ready(function () {
+      $("#DataTable").DataTable({
+        "paging": true,  //Activa/Desactiva la paginación.
+        order: [[0, 'desc']],
+        "filter": false,
+        "info": false //Activa/Desactiva la información de ayuda.
+      });
+    });
+
+    function Filtrar() {
+
+      var lValorCoincidencia = $("#cboCoincidenciaLN").val();
+      var lcboPlataforma = $("#cboPlataforma").val();
+      var lcboProyecto = $("#cboProyecto").val();
+      var lcboCasa = $("#cboCasa").val();
+      var lcboOficina = $("#cboOficina").val();
+      var lcboReferencia1 = $("#cboReferencia1").val();
+      var lcboReferencia2 = $("#cboReferencia2").val();
+      var lcboEstatusFinal = $("#cboEstatusFinal").val();
+      var lcboResultadoFinal = $("#cboResultadoFinal").val();
+
+      window.location.href = '/ValidacionTelefonica/Reglas/ConsultarPorFiltros?pCoincidenciaLN=' + lValorCoincidencia + '&pPlataforma=' + lcboPlataforma + '&pProyecto=' + lcboProyecto + '&pCasa=' + lcboCasa + '&pOficina=' + lcboOficina + '&pRef1=' + lcboReferencia1 + '&pRef2=' + lcboReferencia2 + '&pEstatusFinal=' + lcboEstatusFinal + '&pResultadoFinal=' + lcboResultadoFinal;
+    }
+  </script>
+}
+

@@ -1,0 +1,560 @@
+<#@ template language="C#" HostSpecific="True" Debug="True" #>
+<#@ output extension="cs" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Data.Linq" #>
+<#@ ScaffoldingAssembly Processor="ScaffoldingAssemblyLoader" #>
+<#
+string routePrefix;
+if (String.IsNullOrEmpty(AreaName)) 
+{
+    routePrefix = ControllerRootName;
+}
+else
+{
+    routePrefix = AreaName + "/" + ControllerRootName;
+}
+#>
+<#@ import namespace="System.Collections" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="Microsoft.AspNet.Scaffolding.Core.Metadata" #>
+<#@ parameter type="System.String" name="ControllerName" #>
+<#@ parameter type="System.String" name="ControllerRootName" #>
+<#@ parameter type="System.String" name="Namespace" #>
+<#@ parameter type="System.String" name="AreaName" #>
+<#@ parameter type="System.String" name="ContextTypeName" #>
+<#@ parameter type="System.String" name="ModelTypeName" #>
+<#@ parameter type="System.String" name="ModelVariable" #>
+<#@ parameter type="Microsoft.AspNet.Scaffolding.Core.Metadata.ModelMetadata" name="ModelMetadata" #>
+<#@ parameter type="System.String" name="EntitySetVariable" #>
+<#@ parameter type="System.Boolean" name="UseAsync" #>
+<#@ parameter type="System.Boolean" name="IsOverpostingProtectionRequired" #>
+<#@ parameter type="System.String" name="BindAttributeIncludeText" #>
+<#@ parameter type="System.String" name ="OverpostingWarningMessage" #>
+<#@ parameter type="System.Collections.Generic.HashSet<System.String>" name="RequiredNamespaces" #>
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Entity;
+using System.Linq;
+<# if (UseAsync) { #>
+using System.Threading.Tasks;
+<# } #>
+using System.Net;
+using System.Web;
+using System.Web.Mvc;
+
+<# foreach (var namespaceName in RequiredNamespaces) { #>
+using <#= namespaceName #>;
+<# } #>
+
+// Referencia Microsoft.AspNet.Identity.EntityFramework de Nugget Package v2.2.2
+using Microsoft.AspNet.Identity;
+// Referencia del Portal o proyecto principal
+using Telcel.Portal.MiTelcelR9;
+
+namespace <#= Namespace #>
+{
+<#
+    var contextTypeName = ContextTypeName;
+    var entitySetName = ModelMetadata.EntitySetName;
+    var entitySetVar = EntitySetVariable ?? (String.IsNullOrEmpty(entitySetName) ? entitySetName : (entitySetName.Substring(0, length:1).ToLowerInvariant() + entitySetName.Substring(1)));
+    var primaryKeyName = ModelMetadata.PrimaryKeys[0].PropertyName;
+    var primaryKeyShortTypeName = ModelMetadata.PrimaryKeys[0].ShortTypeName;
+    var primaryKeyDefaultValue = ModelMetadata.PrimaryKeys[0].DefaultValue;
+    var primaryKeyType = ModelMetadata.PrimaryKeys[0].TypeName;
+    var primaryKeyNullableTypeName = GetNullableTypeName(primaryKeyType, primaryKeyShortTypeName);
+    var lambdaVar = ModelVariable[0];
+    var relatedProperties = ModelMetadata.RelatedEntities.ToDictionary(item => item.AssociationPropertyName);
+
+    string bindAttribute;
+    if (IsOverpostingProtectionRequired)
+    {
+        bindAttribute = String.Format("[Bind(Include = \"{0}\")] ", BindAttributeIncludeText);
+    }
+    else
+    {
+        bindAttribute = String.Empty;
+    }
+#>
+  [Seguridad] // Seguridad del portal. Descomentar para usar la seguridad
+  [ControlErrores] // Control de errores, envio a pantalla de error automatica, registro de errores.
+    public class <#= ControllerName #> : Controller
+    {
+        private <#= ContextTypeName #> db = new <#= ContextTypeName #>();
+
+        // GET: <#= routePrefix #>
+<# if (UseAsync) { #>
+        public async Task<ActionResult> Index()
+<# } else { #>
+        public ActionResult Index()
+<# } #>
+        {
+<#  var includeExpressions = "";
+        includeExpressions = String.Join("", relatedProperties.Values.Select(property => String.Format(".Include({0} => {0}.{1})", lambdaVar, property.AssociationPropertyName)));
+#>
+<# if(!String.IsNullOrEmpty(includeExpressions)) { #>
+            var <#= entitySetVar #> = db.<#= entitySetName #><#= includeExpressions #>;
+<#		if (UseAsync) { #>
+            return View(await <#= entitySetVar #>.ToListAsync());
+<#		} else { #>
+            return View(<#= entitySetVar #>.ToList());
+<#		} #>
+<# } else { #>
+<#		if (UseAsync) { #>
+            return View(await db.<#= entitySetName #><#= includeExpressions #>.ToListAsync());
+<#		} else { #>
+            return View(db.<#= entitySetName #><#= includeExpressions #>.ToList());
+<#		} #>
+<# } #>
+        }
+
+#region Detalles
+
+        // GET: <#= routePrefix #>/Detalles/5
+<# if (UseAsync) { #>
+        public async Task<ActionResult> Detalles(<#= primaryKeyNullableTypeName #> id)
+<# } else { #>
+        public ActionResult Detalles(<#= primaryKeyNullableTypeName #> id)
+<# } #>
+        {
+            if (id == null)
+            {
+								Notificacion.Show(this, "Seleccione un elemento de la lista.", NotificationType.Warning);
+                return RedirectToAction("Index");
+            }
+<# if (UseAsync) { #>
+            <#= ModelTypeName #> <#= ModelVariable #> = await db.<#= entitySetName #>.FindAsync(id);
+<# } else { #>
+            <#= ModelTypeName #> <#= ModelVariable #> = db.<#= entitySetName #>.Find(id);
+<# } #>
+            if (<#= ModelVariable #> == null)
+            {
+								Notificacion.Show(this, "Elemento no encontrado con la clave " + id, NotificationType.Error);
+                return RedirectToAction("Index");
+            }
+            return View("Details",<#= ModelVariable #>);
+        }
+				
+				        // GET: <#= routePrefix #>/_Detalles/5; LOAD: Ajax; VIEW: PartialView Modal
+<# if (UseAsync) { #>
+        public async Task<ActionResult> _Detalles(<#= primaryKeyNullableTypeName #> id)
+<# } else { #>
+        public ActionResult _Detalles(<#= primaryKeyNullableTypeName #> id)
+<# } #>
+        {
+            if (id == null)
+            {
+                return _NotFound();
+            }
+<# if (UseAsync) { #>
+            <#= ModelTypeName #> <#= ModelVariable #> = await db.<#= entitySetName #>.FindAsync(id);
+<# } else { #>
+            <#= ModelTypeName #> <#= ModelVariable #> = db.<#= entitySetName #>.Find(id);
+<# } #>
+            if (<#= ModelVariable #> == null)
+            {
+                return _NotFound();
+            }
+            return PartialView(<#= ModelVariable #>);
+        }
+
+#endregion
+
+#region Registrar
+
+        // GET: <#= routePrefix #>/Registrar
+        public ActionResult Registrar()
+        {
+<# foreach (var property in relatedProperties.Values) { #>
+            ViewBag.<#= property.ForeignKeyPropertyNames[0] #> = new SelectList(db.<#= property.EntitySetName #>, "<#= property.PrimaryKeyNames[0] #>", "<#= property.DisplayPropertyName #>");
+<# } #>
+            return View("Create");
+        }
+
+        // POST: <#= routePrefix #>/Registrar
+<# if (IsOverpostingProtectionRequired) {
+    foreach (var line in OverpostingWarningMessage.Split(new string[] { Environment.NewLine }, StringSplitOptions.None)) { 
+#>
+        // <#= line #>
+<# } } #>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+<# if (UseAsync) { #>
+        public async Task<ActionResult> Registrar(<#= bindAttribute #><#= ModelTypeName #> <#= ModelVariable #>)
+<# } else { #>
+        public ActionResult Registrar(<#= bindAttribute #><#= ModelTypeName #> <#= ModelVariable #>)
+<# } #>
+        {
+            if (ModelState.IsValid)
+            {
+<# if(!String.IsNullOrEmpty(primaryKeyType) && String.Equals("System.Guid", primaryKeyType, StringComparison.OrdinalIgnoreCase)) { #>
+                <#= ModelVariable #>.<#= primaryKeyName #> = Guid.NewGuid();
+<# } #>
+                db.<#= entitySetName #>.Add(<#= ModelVariable #>);
+<# if (UseAsync) {#>
+                await db.SaveChangesAsync();
+<# } else { #>
+                db.SaveChanges();
+<# } #>
+								Notificacion.Show(this, "El registro fue guardado correctamente.", NotificationType.Success);
+                return RedirectToAction("Index");
+            }
+
+<# foreach (var property in relatedProperties.Values) { #>
+            ViewBag.<#= property.ForeignKeyPropertyNames[0] #> = new SelectList(db.<#= property.EntitySetName #>, "<#= property.PrimaryKeyNames[0] #>", "<#= property.DisplayPropertyName #>", <#= ModelVariable #>.<#= property.ForeignKeyPropertyNames[0] #>);
+<# } #>
+						Notificacion.Show(this, "Corrija los errores que aparecen en pantalla.", NotificationType.Warning);
+            return View("Create",<#= ModelVariable #>);
+        }
+
+				        // GET via Modal: <#= routePrefix #>/_Registrar; LOAD: Ajax; VIEW: PartialView Modal
+        public ActionResult _Registrar()
+        {
+<# foreach (var property in relatedProperties.Values) { #>
+            ViewBag.<#= property.ForeignKeyPropertyNames[0] #> = new SelectList(db.<#= property.EntitySetName #>, "<#= property.PrimaryKeyNames[0] #>", "<#= property.DisplayPropertyName #>");
+<# } #>
+            return PartialView();
+        }
+
+        // POST: <#= routePrefix #>/_Registrar
+<# if (IsOverpostingProtectionRequired) {
+    foreach (var line in OverpostingWarningMessage.Split(new string[] { Environment.NewLine }, StringSplitOptions.None)) { 
+#>
+        // <#= line #>
+<# } } #>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+<# if (UseAsync) { #>
+        public async Task<ActionResult> _Registrar(<#= bindAttribute #><#= ModelTypeName #> <#= ModelVariable #>)
+<# } else { #>
+        public ActionResult _Registrar(<#= bindAttribute #><#= ModelTypeName #> <#= ModelVariable #>)
+<# } #>
+        {
+            if (ModelState.IsValid)
+            {
+<# if(!String.IsNullOrEmpty(primaryKeyType) && String.Equals("System.Guid", primaryKeyType, StringComparison.OrdinalIgnoreCase)) { #>
+                <#= ModelVariable #>.<#= primaryKeyName #> = Guid.NewGuid();
+<# } #>
+                db.<#= entitySetName #>.Add(<#= ModelVariable #>);
+<# if (UseAsync) {#>
+                await db.SaveChangesAsync();
+<# } else { #>
+                db.SaveChanges();
+<# } #>
+								Notificacion.Show(this, "El registro fue guardado correctamente.", NotificationType.Success);
+                return RedirectToAction("Index");
+            }
+
+<# foreach (var property in relatedProperties.Values) { #>
+            ViewBag.<#= property.ForeignKeyPropertyNames[0] #> = new SelectList(db.<#= property.EntitySetName #>, "<#= property.PrimaryKeyNames[0] #>", "<#= property.DisplayPropertyName #>", <#= ModelVariable #>.<#= property.ForeignKeyPropertyNames[0] #>);
+<# } #>
+						Notificacion.Show(this, "Ha ocurrido un error, verifique que los campos se hayan llenado correctamente.", NotificationType.Error);
+            return RedirectToAction("Index");
+        }
+
+#endregion
+
+#region Editar
+
+        // GET: <#= routePrefix #>/Editar/5
+<# if (UseAsync) { #>
+        public async Task<ActionResult> Editar(<#= primaryKeyNullableTypeName #> id)
+<# } else { #>
+        public ActionResult Editar(<#= primaryKeyNullableTypeName #> id)
+<# } #>
+        {
+            if (id == null)
+            {
+                Notificacion.Show(this, "Seleccione un elemento de la lista.", NotificationType.Warning);
+								return RedirectToAction("Index");
+            }
+<# if (UseAsync) { #>
+            <#= ModelTypeName #> <#= ModelVariable #> = await db.<#= entitySetName #>.FindAsync(id);
+<# } else { #>
+            <#= ModelTypeName #> <#= ModelVariable #> = db.<#= entitySetName #>.Find(id);
+<# } #>
+            if (<#= ModelVariable #> == null)
+            {
+								Notificacion.Show(this, "Elemento no encontrado con la clave " + id, NotificationType.Error);
+								return RedirectToAction("Index");
+            }
+<# foreach (var property in relatedProperties.Values) { #>
+            ViewBag.<#= property.ForeignKeyPropertyNames[0] #> = new SelectList(db.<#= property.EntitySetName #>, "<#= property.PrimaryKeyNames[0] #>", "<#= property.DisplayPropertyName #>", <#= ModelVariable #>.<#= property.ForeignKeyPropertyNames[0] #>);
+<# } #>
+            return View("Edit",<#= ModelVariable #>);
+        }
+
+        // POST: <#= routePrefix #>/Editar/5
+<# if (IsOverpostingProtectionRequired) {
+    foreach (var line in OverpostingWarningMessage.Split(new string[] { Environment.NewLine }, StringSplitOptions.None)) { 
+#>
+        // <#= line #>
+<# } } #>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+<# if (UseAsync) { #>
+        public async Task<ActionResult> Editar(<#= bindAttribute #><#= ModelTypeName #> <#= ModelVariable #>)
+<# } else { #>
+        public ActionResult Editar(<#= bindAttribute #><#= ModelTypeName #> <#= ModelVariable #>)
+<# } #>
+        {
+            if (ModelState.IsValid)
+            {
+                db.Entry(<#= ModelVariable #>).State = EntityState.Modified;
+<# if (UseAsync) { #>
+                await db.SaveChangesAsync();
+<# } else { #>
+                db.SaveChanges();
+<# } #>
+								Notificacion.Show(this, "Datos actualizados correctamente.", NotificationType.Success);
+                return RedirectToAction("Index");
+            }
+<# foreach (var property in relatedProperties.Values) { #>
+            ViewBag.<#= property.ForeignKeyPropertyNames[0] #> = new SelectList(db.<#= property.EntitySetName #>, "<#= property.PrimaryKeyNames[0] #>", "<#= property.DisplayPropertyName #>", <#= ModelVariable #>.<#= property.ForeignKeyPropertyNames[0] #>);
+<# } #>
+						Notificacion.Show(this, "Corrija los errores que aparecen en pantalla.", NotificationType.Warning);
+            return View("Edit",<#= ModelVariable #>);
+        }
+
+				        // GET: <#= routePrefix #>/_Edit/5; LOAD: Ajax; VIEW: PartialView Modal
+<# if (UseAsync) { #>
+        public async Task<ActionResult> _Editar(<#= primaryKeyNullableTypeName #> id)
+<# } else { #>
+        public ActionResult _Editar(<#= primaryKeyNullableTypeName #> id)
+<# } #>
+        {
+					try
+					{
+<# if (UseAsync) { #>
+            <#= ModelTypeName #> <#= ModelVariable #> = await db.<#= entitySetName #>.FindAsync(id);
+<# } else { #>
+            <#= ModelTypeName #> <#= ModelVariable #> = db.<#= entitySetName #>.Find(id);
+<# } #>
+            if (<#= ModelVariable #> == null)
+            {
+							throw new Exception("Registro no encontrado.");
+            }
+<# foreach (var property in relatedProperties.Values) { #>
+            ViewBag.<#= property.ForeignKeyPropertyNames[0] #> = new SelectList(db.<#= property.EntitySetName #>, "<#= property.PrimaryKeyNames[0] #>", "<#= property.DisplayPropertyName #>", <#= ModelVariable #>.<#= property.ForeignKeyPropertyNames[0] #>);
+<# } #>
+            return PartialView(<#= ModelVariable #>);
+						}
+						catch (Exception e)
+						{
+							return PartialNotificationView(e.GetMessageError());
+						}
+        }
+
+        // POST: <#= routePrefix #>/_Editar/5
+<# if (IsOverpostingProtectionRequired) {
+    foreach (var line in OverpostingWarningMessage.Split(new string[] { Environment.NewLine }, StringSplitOptions.None)) { 
+#>
+        // <#= line #>
+<# } } #>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+<# if (UseAsync) { #>
+        public async Task<ActionResult> _Editar(<#= bindAttribute #><#= ModelTypeName #> <#= ModelVariable #>)
+<# } else { #>
+        public ActionResult _Editar(<#= bindAttribute #><#= ModelTypeName #> <#= ModelVariable #>)
+<# } #>
+        {
+            if (ModelState.IsValid)
+            {
+                db.Entry(<#= ModelVariable #>).State = EntityState.Modified;
+<# if (UseAsync) { #>
+                await db.SaveChangesAsync();
+<# } else { #>
+                db.SaveChanges();
+<# } #>
+								Notificacion.Show(this, "Datos actualizados correctamente.", NotificationType.Success);
+								return RedirectToAction("Index");
+            }
+<# foreach (var property in relatedProperties.Values) { #>
+            ViewBag.<#= property.ForeignKeyPropertyNames[0] #> = new SelectList(db.<#= property.EntitySetName #>, "<#= property.PrimaryKeyNames[0] #>", "<#= property.DisplayPropertyName #>", <#= ModelVariable #>.<#= property.ForeignKeyPropertyNames[0] #>);
+<# } #>
+								Notificacion.Show(this, "Ha ocurrido un error, verifique que los campos se hayan llenado correctamente.", NotificationType.Error);
+                return RedirectToAction("Index");
+        }
+
+#endregion
+
+#region		Eliminar
+
+        // GET: <#= routePrefix #>/Eliminar/5
+<# if (UseAsync) { #>
+        public async Task<ActionResult> Eliminar(<#= primaryKeyNullableTypeName #> id)
+<# } else { #>
+        public ActionResult Eliminar(<#= primaryKeyNullableTypeName #> id)
+<# } #>
+        {
+            if (id == null)
+            {
+								Notificacion.Show(this, "Seleccione un elemento de la lista.", NotificationType.Warning);
+								return RedirectToAction("Index");
+            }
+<# if (UseAsync) { #>
+            <#= ModelTypeName #> <#= ModelVariable #> = await db.<#= entitySetName #>.FindAsync(id);
+<# } else { #>
+            <#= ModelTypeName #> <#= ModelVariable #> = db.<#= entitySetName #>.Find(id);
+<# } #>
+            if (<#= ModelVariable #> == null)
+            {
+								Notificacion.Show(this, "Elemento no encontrado con la clave " + id, NotificationType.Error);
+								return RedirectToAction("Index");
+            }
+            return View("Delete",<#= ModelVariable #>);
+        }
+
+        // POST: <#= routePrefix #>/Eliminar/5
+        [HttpPost, ActionName("Eliminar")]
+        [ValidateAntiForgeryToken]
+<# if (UseAsync) { #>
+        public async Task<ActionResult> ConfirmarEliminar(<#= primaryKeyShortTypeName #> id)
+<# } else { #>
+        public ActionResult ConfirmarEliminar(<#= primaryKeyShortTypeName #> id)
+<# } #>
+        {
+				      try
+      {
+<# if (UseAsync) { #>
+            <#= ModelTypeName #> <#= ModelVariable #> = await db.<#= entitySetName #>.FindAsync(id);
+<# } else { #>
+            <#= ModelTypeName #> <#= ModelVariable #> = db.<#= entitySetName #>.Find(id);
+<# } #>
+            db.<#= entitySetName #>.Remove(<#= ModelVariable #>);
+<# if (UseAsync) { #>
+            await db.SaveChangesAsync();
+<# } else { #>
+            db.SaveChanges();
+<# } #>
+						Notificacion.Show(this, "El registro " + id + " fue eliminado correctamente.", NotificationType.Success);
+						      }
+      catch (Exception e)
+      {
+        Notificacion.Show(this, "Ha ocurrido un error al eliminar " + e.Message, NotificationType.Error);
+      }
+            return RedirectToAction("Index");
+        }
+				
+				        // GET: <#= routePrefix #>/_Eliminar/5; LOAD: Ajax; VIEW: PartialView Modal
+<# if (UseAsync) { #>
+        public async Task<ActionResult> _Eliminar(<#= primaryKeyNullableTypeName #> id)
+<# } else { #>
+        public ActionResult _Eliminar(<#= primaryKeyNullableTypeName #> id)
+<# } #>
+        {
+             try
+						{
+<# if (UseAsync) { #>
+            <#= ModelTypeName #> <#= ModelVariable #> = await db.<#= entitySetName #>.FindAsync(id);
+<# } else { #>
+            <#= ModelTypeName #> <#= ModelVariable #> = db.<#= entitySetName #>.Find(id);
+<# } #>
+            if (<#= ModelVariable #> == null)
+            {
+								throw new Exception("Registro no encontrado.");
+            }
+            return PartialView(<#= ModelVariable #>);
+						}
+							catch (Exception e)
+						{
+							return PartialNotificationView(e.GetMessageError());
+						}
+        }
+
+        // POST: <#= routePrefix #>/Eliminar/5
+        [HttpPost, ActionName("_Eliminar")]
+        [ValidateAntiForgeryToken]
+<# if (UseAsync) { #>
+        public async Task<ActionResult> _ConfirmarEliminar(<#= primaryKeyShortTypeName #> id)
+<# } else { #>
+        public ActionResult _ConfirmarEliminar(<#= primaryKeyShortTypeName #> id)
+<# } #>
+        {
+				      try
+      {
+<# if (UseAsync) { #>
+            <#= ModelTypeName #> <#= ModelVariable #> = await db.<#= entitySetName #>.FindAsync(id);
+<# } else { #>
+            <#= ModelTypeName #> <#= ModelVariable #> = db.<#= entitySetName #>.Find(id);
+<# } #>
+            db.<#= entitySetName #>.Remove(<#= ModelVariable #>);
+<# if (UseAsync) { #>
+            await db.SaveChangesAsync();
+<# } else { #>
+            db.SaveChanges();
+<# } #>
+						Notificacion.Show(this, "El registro " + id + " fue eliminado correctamente.", NotificationType.Success);
+						      }
+      catch (Exception e)
+      {
+        Notificacion.Show(this, "Ha ocurrido un error al eliminar " + e.Message, NotificationType.Error);
+      }
+            return RedirectToAction("Index");
+        }
+
+#endregion
+
+				#region Helpers
+
+				private PartialViewResult _NotFound()
+				{
+				  Response.StatusCode = 404;
+				  return PartialView("_NotFound");
+				}
+
+				private ActionResult PartialNotificationView(string message, NotificationType notificationType = NotificationType.Error)
+				{
+					var view = "_" + notificationType.ToString();
+					return PartialView(view, message);
+				}
+
+				private ActionResult RedirectToLocal(string returnUrl)
+				{
+					if (Url.IsLocalUrl(returnUrl))
+					{
+						return Redirect(returnUrl);
+					}
+					return RedirectToAction("Index");
+				}
+
+				#endregion
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+    }
+}
+<#+
+// This function converts the primary key short type name to its nullable equivalent when possible. This is required to make
+// sure that an HTTP 400 error is thrown when the user tries to access the edit, delete, or details action with null values.
+    string GetNullableTypeName(string typeName, string shortTypeName)
+    {
+        // The exceptions are caught because if for any reason the type is user defined, then the short type name will be used.
+        // In that case the user will receive a server error if null is passed to the edit, delete, or details actions.
+        Type primaryKeyType = null;
+        try
+        {
+            primaryKeyType = Type.GetType(typeName);
+        }
+        catch
+        {
+        }
+        if (primaryKeyType != null && (primaryKeyType.IsPrimitive || IsGuid(typeName)))
+        {
+            return shortTypeName + "?";
+        }
+        return shortTypeName;
+    }
+
+    bool IsGuid(string typeName) {
+        return String.Equals("System.Guid", typeName, StringComparison.OrdinalIgnoreCase);
+    }
+#>

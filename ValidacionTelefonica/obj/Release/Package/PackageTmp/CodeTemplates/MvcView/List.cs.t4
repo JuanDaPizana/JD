@@ -1,0 +1,240 @@
+﻿<#@ template language="C#" HostSpecific="True" #>
+<#@ output extension=".cshtml" #>
+<#@ include file="Imports.include.t4" #>
+@model IEnumerable<#= "<" + ViewDataTypeName + ">" #>
+<#
+// The following chained if-statement outputs the file header code and markup for a partial view, a view using a layout page, or a regular view.
+if(IsPartialView) {
+#>
+
+<#
+} else if(IsLayoutPageSelected) {
+#>
+
+@{
+	ViewBag.Title = "<#= ViewDataTypeShortName #>";
+	//ViewBag.HeaderIcon = "fa-cube"; 
+	//ViewBag.HeaderTitle = "<#= ViewDataTypeShortName #>";
+	//ViewBag.HeaderDescription = "Descripción";
+	//ViewBag.Header = false; // Si desea ocultar la cabecera
+<#
+if (!String.IsNullOrEmpty(LayoutPageFile)) {
+#>
+    Layout = "<#= LayoutPageFile#>";
+<#
+}
+#>
+}
+<#
+} else {
+#>
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title><#= ViewName #></title>
+</head>
+<body>
+<#
+    PushIndent("    ");
+}
+#>
+
+@* Toda referencia de estilos escribir dentro de la secccion "styles" *@
+@section styles{
+    @* Utilice el Metodo @Url.ContentArea("~/*") para ontener la url relativa del archivo *@
+    <link href="@Url.ContentArea("~/Content/Site.css")" rel="stylesheet"/>
+
+	@* Si ocupa el elemento DateTimePicker en alguna modal, descomente la linea de abajo *@
+    @* @Styles.Render("~/Content/datetimepicker") *@
+}
+@* Button Bar *@
+<nav class="navbar-button">
+
+    <div class="nav">
+        <div class="btn-group">
+            <a href="@Url.Action("Registrar")" class="btn btn-default navbar-btn"><i class="fa fa-plus fa-fw"></i>Registrar</a>
+        </div>
+    </div>
+    <div class="nav navbar-button-right">
+        <div class="btn-group">
+            <a href="@Request.RawUrl" class="btn btn-default navbar-btn" data-tooltip="" title="Recargar"><i class="fa fa-refresh"></i></a>
+            <a href="#" class="btn btn-default navbar-btn" data-tooltip="" title="Información"><i class="fa fa-info-circle"></i></a>
+        </div>
+    </div>
+</nav>
+
+<div> 
+<div class="table-responsive">
+<table class="table table-hover table-selectable table-condensed" data-table="on">
+<thead>
+    <tr>
+<#
+IEnumerable<PropertyMetadata> properties = ModelMetadata.Properties;
+foreach (PropertyMetadata property in properties) {
+    if (property.Scaffold && !property.IsPrimaryKey && !property.IsForeignKey) {
+#>
+<#
+        // We do not want to show any association properties for which there is
+        // no associated foreign key.
+        if (property.IsAssociation && GetRelatedModelMetadata(property) == null) {
+            continue;
+        }
+#>
+        <th>
+            @Html.DisplayNameFor(model => model.<#= GetValueExpression(property) #>)
+        </th>
+<#
+    }
+}
+#>
+        <th></th>
+    </tr>
+</thead>
+<tbody>
+@foreach (var item in Model) {
+    <tr>
+<#
+foreach (PropertyMetadata property in properties) {
+    if (property.Scaffold && !property.IsPrimaryKey && !property.IsForeignKey) {
+#>
+<#
+        // We do not want to show any association properties for which there is
+        // no associated foreign key.
+        if (property.IsAssociation && GetRelatedModelMetadata(property) == null) {
+            continue;
+        }
+#>
+        <td>
+            @Html.DisplayFor(modelItem => <#= "item." + GetValueExpression(property) #>)
+        </td>
+<#
+    }
+}
+
+string pkName = GetPrimaryKeyName();
+if (pkName != null) {
+#> 
+				<td>
+                <div class="dropdown dropdown-row-menu">
+                    <button class="btn dropdown-toggle" type="button" data-toggle="dropdown" title="Opciones">
+                        <i class="fa fa-cog"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item edit" href="@Url.Action("Editar", new { id=item.<#= pkName #> })">
+                                <i class="fa fa-pencil fa-fw fltrgt"></i>Editar
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item edit" href="@Url.Action("_Editar", new { id=item.<#= pkName #> })" data-ajax="true" data-ajax-method="GET" data-dismiss="modal" data-toggle="modal" data-ajax-mode="replace" data-target="#Modal<#= ViewName#>" data-ajax-update="#Modal<#= ViewName#>">
+                                <i class="fa fa-pencil fa-fw fltrgt"></i>_Editar
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="@Url.Action("Detalles", new { id=item.<#= pkName #> })">
+                                <i class="fa fa-list fa-fw fltrgt"></i>Detalles
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="@Url.Action("_Detalles", new { id=item.<#= pkName #> })" data-ajax="true" data-ajax-method="GET" data-dismiss="modal" data-toggle="modal" data-ajax-mode="replace" data-target="#Modal<#= ViewName#>" data-ajax-update="#Modal<#= ViewName#>">
+                                <i class="fa fa-list fa-fw fltrgt"></i>_Detalles
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item delete" href="@Url.Action("Eliminar", new { id=item.<#= pkName #> })">
+                                <i class="fa fa-trash fa-fw fltrgt"></i>Eliminar
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item delete" href="@Url.Action("_Eliminar", new { id=item.<#= pkName #> })" data-ajax="true" data-ajax-method="GET" data-dismiss="modal" data-toggle="modal" data-ajax-mode="replace" data-target="#Modal<#= ViewName#>" data-ajax-update="#Modal<#= ViewName#>">
+                                <i class="fa fa-trash fa-fw fltrgt"></i>_Eliminar
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </td>
+<#
+} else {
+#> 
+						<td>
+							<div class="dropdown dropdown-row-menu">
+								<button class="btn dropdown-toggle" type="button" data-toggle="dropdown" title="Opciones">
+								    <i class="fa fa-cog"></i>
+								</button>
+								<ul class="dropdown-menu">
+								    <li>
+								        <a class="dropdown-item edit" href="@Url.Action("Editar", new { /* id=item.PrimaryKey */ })">
+								            <i class="fa fa-pencil fa-fw fltrgt"></i>Editar
+								        </a>
+								    </li>
+								    <li>
+								        <a class="dropdown-item edit" href="@Url.Action("_Editar", new { /* id=item.PrimaryKey */ })" data-ajax="true" data-ajax-method="GET" data-dismiss="modal" data-toggle="modal" data-ajax-mode="replace" data-target="#Modal<#= ViewName#>" data-ajax-update="#Modal<#= ViewName#>">
+								            <i class="fa fa-pencil fa-fw fltrgt"></i>_Editar
+								        </a>
+								    </li>
+								    <li>
+								        <a class="dropdown-item" href="@Url.Action("Detalles", new { /* id=item.PrimaryKey */ })">
+								            <i class="fa fa-list fa-fw fltrgt"></i>Detalles
+								        </a>
+								    </li>
+								    <li>
+								        <a class="dropdown-item" href="@Url.Action("_Detalles", new { /* id=item.PrimaryKey */ })" data-ajax="true" data-ajax-method="GET" data-dismiss="modal" data-toggle="modal" data-ajax-mode="replace" data-target="#Modal<#= ViewName#>" data-ajax-update="#Modal<#= ViewName#>">
+								            <i class="fa fa-list fa-fw fltrgt"></i>_Detalles
+								        </a>
+								    </li>
+								    <li>
+								        <a class="dropdown-item delete" href="@Url.Action("Eliminar", new { /* id=item.PrimaryKey */ })">
+								            <i class="fa fa-trash fa-fw fltrgt"></i>Eliminar
+								        </a>
+								    </li>
+								    <li>
+								        <a class="dropdown-item delete" href="@Url.Action("_Eliminar", new { /* id=item.PrimaryKey */ })" data-ajax="true" data-ajax-method="GET" data-dismiss="modal" data-toggle="modal" data-ajax-mode="replace" data-target="#Modal<#= ViewName#>" data-ajax-update="#Modal<#= ViewName#>">
+								            <i class="fa fa-trash fa-fw fltrgt"></i>_Eliminar
+								        </a>
+								    </li>
+								</ul>
+							</div>
+            </td>
+<#
+}
+#>
+    </tr>
+}
+</tbody>
+</table>
+</div>
+</div>
+
+@* Contenedor para cargar las pantallas modales *@
+<div class="modal fade" id="Modal<#= ViewName#>" tabindex="-1" role="dialog"></div>
+
+@* Toda referencia de Scripts escribir dentro de la section "scripts" *@
+@section scripts{
+	@* Si realiza una referencia de un script el Metodo @Url.ContentArea("~/") ejem: <script type="text/javascript" src="@Url.ContentArea("~/Scripts/...")"></script> *@
+	
+	@* Scripts para cargar DataTable. *@
+	@Scripts.Render("~/bundles/datatable")
+
+
+}
+
+<#
+// The following code closes the tag used in the case of a view using a layout page and the body and html tags in the case of a regular view page
+#>
+<#
+if(!IsPartialView && !IsLayoutPageSelected) {
+    ClearIndent();
+#>
+</body>
+</html>
+<#
+}
+#>
+<#@ include file="ModelMetadataFunctions.cs.include.t4" #>

@@ -1,0 +1,111 @@
+﻿<#@ template language="C#" HostSpecific="True" #>
+<#@ output extension=".cshtml" #>
+<#@ include file="Imports.include.t4" #>
+@model <#= ViewDataTypeName #>
+<#
+// The following chained if-statement outputs the file header code and markup for a partial view, a view using a layout page, or a regular view.
+if(IsPartialView) {
+#>
+
+<#
+} else if(IsLayoutPageSelected) {
+#>
+
+@{
+   ViewBag.Title = "Detalles"; //Titulo de la pestaña
+	//ViewBag.HeaderIcon = "fa-list";
+	//ViewBag.HeaderTitle = "Detalles";
+	//ViewBag.HeaderDescription = "";
+	//ViewBag.Header = false; // Si desea ocultar la cabecera
+<#
+if (!String.IsNullOrEmpty(LayoutPageFile)) {
+#>
+    Layout = "<#= LayoutPageFile#>";
+<#
+}
+#>
+}
+<#
+} else {
+#>
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title><#= ViewName #></title>
+</head>
+<body>
+<#
+    PushIndent("    ");
+}
+#>
+
+@* Toda referencia de estilos escribir dentro de la secccion "styles" *@
+@section styles{
+    @* Utilice el Metodo @Url.ContentArea("~/*") para obtener la url relativa del archivo *@
+    <link href="@Url.ContentArea("~/Content/Site.css")" rel="stylesheet"/>
+}
+
+@* Button Bar *@
+<nav class="navbar-button">
+    <div class="nav navbar-button-right">
+        <div class="btn-group">
+						<a href="#" class="btn btn-default navbar-btn" data-tooltip="" title="" data-original-title="Atrás"><i class="fa fa-arrow-circle-left"></i></a>
+            <a href="@Request.RawUrl" class="btn btn-default navbar-btn" data-tooltip="" title="Recargar"><i class="fa fa-refresh"></i></a>
+            <a href="#" class="btn btn-default navbar-btn" data-tooltip="" title="Información"><i class="fa fa-info-circle"></i></a>
+        </div>
+    </div>
+</nav>
+
+<div>
+    <dl class="dl-horizontal">
+<#
+foreach (PropertyMetadata property in ModelMetadata.Properties) {
+    if (property.Scaffold && !property.IsPrimaryKey && !property.IsForeignKey) {
+#>
+<#
+        // We do not want to show any association properties for which there is
+        // no associated foreign key.
+        if (property.IsAssociation && GetRelatedModelMetadata(property) == null) {
+            continue;
+        }
+#>
+        <dt>
+            @Html.DisplayNameFor(model => model.<#= GetValueExpression(property) #>)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.<#= GetValueExpression(property) #>)
+        </dd>
+
+<#
+    }
+}
+#>
+    </dl>
+</div>
+
+@* Toda referencia de Scripts escribir dentro de la section "scripts" *@
+@section scripts{
+	@* Si realiza una referencia de un script el Metodo @Url.ContentArea("~/") ejem: <script type="text/javascript" src="@Url.ContentArea("~/Scripts/...")"></script> *@
+}
+
+<#
+// The following code closes the tag used in the case of a view using a layout page and the body and html tags in the case of a regular view page
+#>
+<#
+if(!IsPartialView && !IsLayoutPageSelected) {
+    ClearIndent();
+#>
+</body>
+</html>
+<#
+}
+#>
+<#@ include file="ModelMetadataFunctions.cs.include.t4" #>

@@ -1,0 +1,30 @@
+﻿@model ValidacionTelefonica.Entities.ReglaValidacionEliminar
+
+@{
+  ViewBag.Titulo = "Eliminar Regla de Validación";
+}
+
+@using (Html.BeginForm("_Eliminar", "Reglas", FormMethod.Post))
+{
+  @Html.AntiForgeryToken()
+
+  @Html.HiddenFor(x => x.ReglaValidacionID)
+
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Eliminar Regla de Validación</h4>
+      </div>
+      <div class="modal-body">
+        <h4>¿Está seguro que desea eliminar la regla de validación?</h4>
+      </div>
+      <div class="panel-footer text-right">
+        <button type="submit" class="btn btn-default"><i class="fa fa-trash text-success"></i> Eliminar</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times-circle-o text-danger"></i> Cancelar</button>
+      </div>
+    </div>
+  </div>
+}

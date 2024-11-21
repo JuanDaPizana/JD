@@ -1,0 +1,74 @@
+﻿<#@ template language="C#" HostSpecific="True" #>
+<#@ output extension="cs" #>
+<#@ parameter type="System.String" name="ControllerName" #>
+<#@ parameter type="System.String" name="ControllerRootName" #>
+<#@ parameter type="System.String" name="Namespace" #>
+<#@ parameter type="System.String" name="AreaName" #>
+<#
+string routePrefix;
+if (String.IsNullOrEmpty(AreaName)) 
+{
+    routePrefix = ControllerRootName;
+}
+else
+{
+    routePrefix = AreaName + "/" + ControllerRootName;
+}
+#>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+// Referencia Microsoft.AspNet.Identity.EntityFramework de Nugget Package v2.2.2
+using Microsoft.AspNet.Identity;
+// Referencia del Portal o proyecto principal
+using Telcel.Portal.MiTelcelR9;
+
+namespace <#= Namespace #>
+{
+  [Seguridad] // Seguridad del portal. Descomentar para usar la seguridad
+  [ControlErrores] // Control de errores, envio a pantalla de error automatica, registro de errores.
+    public class <#= ControllerName #> : Controller
+    {
+        // GET: <#= routePrefix #>
+        public ActionResult Index()
+        {
+            return View();
+        }	
+					
+				#region Helpers
+				 
+				 /// <summary>
+				 /// Vista para redireccionar una carga de vista parcial (modal) mostrando una notificación como resultado
+				 /// INVOCACIóN: Return PartialNotificationView("Hola mundo",notificationType.Success)
+				 /// </summary>
+				 /// <param name="message">Mensaje a mostrar</param>
+				 /// <param name="notificationType">Tipo de Notificación</param>
+				 /// <returns></returns>
+				private ActionResult PartialNotificationView(string message, NotificationType notificationType = NotificationType.Error)
+				{
+					var view = "_" + notificationType.ToString();
+					return PartialView(view, message);
+				}
+
+				/// <summary>
+				/// Método para redireccionar las páginas de retorno, normalmente representado con la var "returnUrl"
+				/// </summary>
+				/// <param name="returnUrl">Página de Retorno o Redireccionamiento</param>
+				/// <returns></returns>
+				private ActionResult RedirectToLocal(string returnUrl)
+				{
+					if (Url.IsLocalUrl(returnUrl))
+					{
+						return Redirect(returnUrl);
+					}
+					return RedirectToAction("Index");
+				}
+
+				#endregion
+
+    }
+
+}

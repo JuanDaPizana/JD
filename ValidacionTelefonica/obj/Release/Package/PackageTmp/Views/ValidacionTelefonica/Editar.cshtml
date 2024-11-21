@@ -1,0 +1,585 @@
+﻿@model ValidacionTelefonica.Entities.ValidacionTelefonicaEditar
+@{
+  /**/
+
+  ViewBag.Title = "Editar"; //Titulo de la pestaña
+  ViewBag.HeaderIcon = "fa-cube";
+  ViewBag.HeaderTitle = "Editar";
+  ViewBag.HeaderDescription = "Se realiza con la validación";
+  ViewBag.Header = false; // Si desea ocultar la cabecera
+}
+
+@* Toda referencia de estilos escribir dentro de la secccion "styles" *@
+@section styles{
+  @* Utilice el Metodo @Url.ContentArea("~/*") para obtener la url relativa del archivo *@
+  <link href="@Url.ContentArea("~/Content/Site.css")" rel="stylesheet" />
+}
+
+@using (Html.BeginForm("Editar", "ValidacionTelefonica", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+  @Html.AntiForgeryToken()
+  @* Button Bar *@
+  <nav class="navbar-button">
+
+    <div class="nav">
+      <div class="btn-group">
+        @if (ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Supervisor || ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Jefe)
+        {
+          <button type="submit" onclick="" class="btn btn-default navbar-btn"><i class="fa fa-floppy-o"></i> Editar</button>
+        }
+      </div>
+    </div>
+
+    <div class="nav navbar-button-right">
+      <div class="btn-group">
+        <a href="@Url.Action("Index", "ValidacionTelefonica")" class="btn btn-default navbar-btn" data-tooltip="" title="" data-original-title="Atrás"><i class="fa fa-arrow-circle-left"></i></a>
+        <a href="@Request.RawUrl" class="btn btn-default navbar-btn" data-tooltip="" title="Recargar"><i class="fa fa-refresh"></i></a>
+      </div>
+    </div>
+  </nav>
+
+  <div>
+    @* TODO CONTENIDO HTML AQUÍ *@
+
+    @Html.HiddenFor(x => x.FolioValidacionID)
+    @Html.HiddenFor(x => x.FechaRegistro)
+    @Html.HiddenFor(x => x.NombreEstatus)
+    @Html.HiddenFor(x => x.EstatusID)
+    @Html.HiddenFor(x => x.HoraInicioValidacion)
+    @Html.HiddenFor(x => x.FuerzaVenta)
+    @Html.HiddenFor(x => x.NumeroCasa)
+    @Html.HiddenFor(x => x.NumeroOficina)
+    @Html.HiddenFor(x => x.Extension)
+    @Html.HiddenFor(x => x.NombreReferencia1)
+    @Html.HiddenFor(x => x.TelefonoReferencia1)
+    @Html.HiddenFor(x => x.NombreReferencia2)
+    @Html.HiddenFor(x => x.TelefonoReferencia2)
+    @Html.HiddenFor(x => x.Comentarios)
+
+
+
+    <div class="col-md-12">
+      <div class="panel-body">
+        <div class="form-group">
+
+          <div class="col-md-3">
+            <label class="form-label">Folio de Registro</label>
+            <div class="input-group">
+              <span class="input-group-addon"><i class="fa fa-newspaper-o"></i></span>
+              <input type="text" name="" value="@Model.FolioValidacionID" readonly class="form-control" />
+
+            </div>
+            <div>
+              <input type="text" name="" value="@Model.FolioValidacionID" readonly class="form-control" style="visibility: hidden" />
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Fecha de Registro</label>
+            <div class="input-group">
+              <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+              <input type="text" name="" value="@Model.FechaRegistro" readonly class="form-control" />
+
+            </div>
+            <div>
+              <input type="text" name="" value="@Model.FechaRegistro" readonly class="form-control" style="visibility: hidden" />
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Estatus</label>
+            <div class="input-group">
+              <span class="input-group-addon"><i class="fa fa-newspaper-o"></i></span>
+              <input type="text" name="" value="@Model.NombreEstatus" readonly class="form-control" />
+
+            </div>
+            <div>
+              <input type="text" name="" value="@Model.NombreEstatus" readonly class="form-control" style="visibility: hidden" />
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Inicio de Validación</label>
+            <div class="input-group">
+              <span class="input-group-addon"><i class="fa fa-newspaper-o"></i></span>
+              <input type="text" name="" value="@Model.HoraInicioValidacion" readonly class="form-control" />
+
+            </div>
+            <div>
+              <input type="text" name="" value="@Model.HoraInicioValidacion" readonly class="form-control" style="visibility: hidden" />
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-12">
+      <div class="panel panel-primary">
+        <div class="panel-heading">Registro de Validación Telefónica </div>
+
+        <div class="panel-body">
+          <div class="form-group">
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.FuerzaVentaID, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+                @if (ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Supervisor || ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Jefe)
+                {
+                   @Html.DropDownListFor(model => model.FuerzaVentaID, ViewBag.FuerzaVenta as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control", id="cboNombreFuerzaVenta"})
+                    @Html.HiddenFor(x => x.FuerzaVenta)
+                    @Html.HiddenFor(x => x.NombreFuerzaVenta)
+                }
+                else
+                {
+                   @Html.DropDownListFor(model => model.FuerzaVenta, ViewBag.FuerzaVenta as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control", @Readonly = "true", @disabled = "disabled" })
+                    @Html.HiddenFor(x => x.FuerzaVentaID)
+                }
+
+              </div>
+              @Html.ValidationMessageFor(model => model.FuerzaVenta, null, new { @class = "text-danger" })
+
+            </div>
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.FolioUnico, new { @class = "form-label" })
+              <span class="text-danger"></span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-commenting-o"></i></span>
+                @if (ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Supervisor || ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Jefe)
+                {
+                  @Html.TextBoxFor(model => model.FolioUnico, new { @class = "form-control", Type = "number", placeholder = "", Style = "max-width: none" })
+                  @Html.HiddenFor(model => model.FolioUnico)
+                }
+                else
+                {
+                  @Html.TextBoxFor(model => model.FolioUnico, new { @class = "form-control", Type = "number", placeholder = "", Style = "max-width: none", @Readonly = "true", @disabled = "disabled" })
+                  @Html.HiddenFor(model => model.FolioUnico)
+                }
+              </div>
+              @Html.ValidationMessageFor(model => model.FolioUnico, null, new { @class = "text-danger" })
+            </div>
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.ClaseCreditoID, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+                @if (ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Supervisor || ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Jefe)
+                {
+                  @Html.DropDownListFor(model => model.ClaseCreditoID, ViewBag.ClaseCredito as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control", id = "cboClaseCredito" })
+                  @Html.HiddenFor(x => x.ClaseCreditoID)
+                  @Html.HiddenFor(x => x.NombreClaseCredito)
+                }
+                else
+                {
+                  @Html.DropDownListFor(model => model.ClaseCreditoID, ViewBag.ClaseCredito as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control", @Readonly = "true", @disabled = "disabled" })
+                  @Html.HiddenFor(x => x.ClaseCreditoID)
+                }
+              </div>
+              @Html.ValidationMessageFor(model => model.ClaseCreditoID, null, new { @class = "text-danger" })
+            </div>
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.ClasificacionClienteID, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+                @if (ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Supervisor || ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Jefe)
+                {
+                  @Html.DropDownListFor(model => model.ClasificacionClienteID, ViewBag.ClasificacionCliente as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control", id = "cboNombreClasificacionCliente" })
+                  @Html.HiddenFor(x => x.ClasificacionClienteID)
+                  @Html.HiddenFor(x => x.NombreClasificacionCliente)
+                }
+                else
+                {
+                  @Html.DropDownListFor(model => model.ClasificacionClienteID, ViewBag.ClasificacionCliente as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control", @Readonly = "true", @disabled = "disabled" })
+                  @Html.HiddenFor(x => x.ClasificacionClienteID)
+                }
+
+              </div>
+              @Html.ValidationMessageFor(model => model.ClasificacionClienteID, null, new { @class = "text-danger" })
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    @if (Model.EstatusID == 3)
+    {
+      <div class="col-md-12">
+        <div class="panel panel-primary">
+          <div class="panel-heading">Resultado de Validación</div>
+
+          <div class="panel-body">
+            <div class="form-group">
+
+              <div class="col-md-3">
+                @Html.LabelFor(model => model.ResultadoFinalEstatusID, new { @class = "form-label" })
+                <span class="text-danger">*</span>
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+
+                  @Html.DropDownListFor(model => model.ResultadoFinalEstatusID, ViewBag.ResultadoFinalEstatus as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control", @Readonly = "true", @disabled = "disabled" })
+                  @Html.HiddenFor(x => x.ResultadoFinalEstatusID)
+
+                </div>
+                @Html.ValidationMessageFor(model => model.ResultadoFinalEstatusID, null, new { @class = "text-danger" })
+              </div>
+
+              <div class="col-md-4">
+                @Html.LabelFor(model => model.ResultadoFinalVTID, new { @class = "form-label" })
+                <span class="text-danger">*</span>
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+                  @Html.DropDownListFor(model => model.ResultadoFinalVTID, ViewBag.ResultadoFinalVT as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control", @Readonly = "true", @disabled = "disabled" })
+                  @Html.HiddenFor(x => x.ResultadoFinalVTID)
+
+                </div>
+                @Html.ValidationMessageFor(model => model.ResultadoFinalVTID, null, new { @class = "text-danger" })
+              </div>
+
+              <div class="col-md-3">
+
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    }
+    <div class="col-md-12">
+      <div class="panel panel-primary">
+        <div class="panel-heading">Datos de Solicitud</div>
+
+        <div class="panel-body">
+          <div class="form-group">
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.TipoSolicitudID, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+                @if (ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Supervisor || ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Jefe)
+                {
+                  @Html.DropDownListFor(model => model.TipoSolicitudID, ViewBag.TipoSolicitud as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control", id = "cboNombreTipoSolicitud" })
+                  @Html.HiddenFor(x => x.TipoSolicitudID)
+                  @Html.HiddenFor(x => x.NombreTipoSolicitud)
+                }
+                else
+                {
+                  @Html.DropDownListFor(model => model.TipoSolicitudID, ViewBag.TipoSolicitud as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control", @Readonly = "true", @disabled = "disabled" })
+                  @Html.HiddenFor(x => x.TipoSolicitudID)
+                }
+
+              </div>
+              @Html.ValidationMessageFor(model => model.TipoSolicitudID, null, new { @class = "text-danger" })
+            </div>
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.PlataformaID, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+                @Html.DropDownListFor(model => model.PlataformaID, ViewBag.Plataforma as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control", @Readonly = "true", @disabled = "disabled" })
+                @Html.HiddenFor(x => x.PlataformaID)
+
+              </div>
+              @Html.ValidationMessageFor(model => model.PlataformaID, null, new { @class = "text-danger" })
+            </div>
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.ProyectoID, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+                @Html.DropDownListFor(model => model.ProyectoID, ViewBag.Proyecto as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control", @Readonly = "true", @disabled = "disabled" })
+                @Html.HiddenFor(x => x.ProyectoID)
+
+              </div>
+              @Html.ValidationMessageFor(model => model.ProyectoID, null, new { @class = "text-danger" })
+            </div>
+
+            <div class="col-md-3">
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-md-12">
+      <div class="panel panel-primary">
+        <div class="panel-heading">Datos del Cliente</div>
+
+        <div class="panel-body">
+          <div class="form-group">
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.NombreCliente, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-commenting-o"></i></span>
+                @if (ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Supervisor || ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Jefe)
+                {
+                  @Html.TextBoxFor(model => model.NombreCliente, new { @class = "form-control", Type = "text", placeholder = "", Style = "max-width: none" })
+                  @Html.HiddenFor(model => model.NombreCliente)
+                }
+                else
+                {
+                  @Html.TextBoxFor(model => model.NombreCliente, new { @class = "form-control", Type = "text", placeholder = "", Style = "max-width: none", @Readonly = "true", @disabled = "disabled" })
+                  @Html.HiddenFor(model => model.NombreCliente)
+                }
+              </div>
+              @Html.ValidationMessageFor(model => model.NombreCliente, null, new { @class = "text-danger" })
+            </div>
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.RFCCliente, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-commenting-o"></i></span>
+                @if (ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Supervisor || ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Jefe)
+                {
+                  @Html.TextBoxFor(model => model.RFCCliente, new { @class = "form-control", Type = "text", MaxLength = 13, placeholder = "", Style = "max-width: none" })
+                  @Html.HiddenFor(model => model.RFCCliente)
+                }
+                else
+                {
+                  @Html.TextBoxFor(model => model.RFCCliente, new { @class = "form-control", Type = "text", MaxLength = 13, placeholder = "", Style = "max-width: none", @Readonly = "true", @disabled = "disabled" })
+                  @Html.HiddenFor(model => model.RFCCliente)
+                }
+              </div>
+              @Html.ValidationMessageFor(model => model.RFCCliente, null, new { @class = "text-danger" })
+            </div>
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.NumeroCasa, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-commenting-o"></i></span>
+                @Html.TextBoxFor(model => model.NumeroCasa, new { @class = "form-control", Type = "number", MaxLength = 10, placeholder = "", Style = "max-width: none", @Readonly = "true", @disabled = "disabled" })
+              </div>
+              @Html.ValidationMessageFor(model => model.NumeroCasa, null, new { @class = "text-danger" })
+            </div>
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.ResultadoVTCasaID, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+                @Html.DropDownListFor(model => model.ResultadoVTCasaID, ViewBag.ResultadoVTCasa as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control", id = "cboResultadoVTCasa", @Readonly = "true", @disabled = "disabled" })
+                @Html.HiddenFor(x => x.ResultadoVTCasaID)
+
+              </div>
+              @Html.ValidationMessageFor(model => model.ResultadoVTCasaID, null, new { @class = "text-danger" })
+            </div>
+
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <div class="form-group">
+
+
+            <div class="col-md-3">
+
+              @Html.LabelFor(model => model.NumeroOficina, new { @class = "form-label" })
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-commenting-o"></i></span>
+                @Html.TextBoxFor(model => model.NumeroOficina, new { @class = "form-control", id = "txtNumeroOficina", Type = "number", MaxLength = 10, placeholder = "", Style = "max-width: none", @Readonly = "true", @disabled = "disabled" })
+              </div>
+              @Html.ValidationMessageFor(model => model.NumeroOficina, null, new { @class = "text-danger" })
+            </div>
+            <div class="col-md-3">
+
+
+              @Html.LabelFor(model => model.Extension, new { @class = "form-label" })
+              <span class="text-danger"></span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-commenting-o"></i></span>
+                @Html.TextBoxFor(model => model.Extension, new { @class = "form-control", id = "txtExtension", Type = "number", MaxLength = 4, placeholder = "", Style = "max-width: none", @Readonly = "true", @disabled = "disabled" })
+              </div>
+              @Html.ValidationMessageFor(model => model.Extension, null, new { @class = "text-danger" })
+            </div>
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.ResultadoVTOficinaID, new { @class = "form-label" })
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+                @Html.DropDownListFor(model => model.ResultadoVTOficinaID, ViewBag.ResultadoVTOficina as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control", id = "cboResultadoVTOficina", @Readonly = "true", @disabled = "disabled" })
+                @Html.HiddenFor(x => x.ResultadoVTOficinaID)
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+        <div class="panel-body">
+          <div class="form-group">
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.NombreReferencia1, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-commenting-o"></i></span>
+                @Html.TextBoxFor(model => model.NombreReferencia1, new { @class = "form-control", placeholder = "", Style = "max-width: none", @Readonly = "true", @disabled = "disabled" })
+              </div>
+              @Html.ValidationMessageFor(model => model.NombreReferencia1, null, new { @class = "text-danger" })
+            </div>
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.TelefonoReferencia1, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-commenting-o"></i></span>
+                @Html.TextBoxFor(model => model.TelefonoReferencia1, new { @class = "form-control", Type = "number", MaxLength = 10, placeholder = "", Style = "max-width: none", @Readonly = "true", @disabled = "disabled" })
+              </div>
+              @Html.ValidationMessageFor(model => model.TelefonoReferencia1, null, new { @class = "text-danger" })
+            </div>
+
+
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.ResultadoVTReferencia1ID, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+                @Html.DropDownListFor(model => model.ResultadoVTReferencia1ID, ViewBag.ResultadoVTRef1 as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control", id = "cboResultadoVTRef1", @Readonly = "true", @disabled = "disabled" })
+                @Html.HiddenFor(x => x.ResultadoVTReferencia1ID)
+              </div>
+              @Html.ValidationMessageFor(model => model.ResultadoVTReferencia1ID, null, new { @class = "text-danger" })
+            </div>
+          </div>
+        </div>
+        @if (Model.PlataformaID == ValidacionTelefonica.Entities.Enumerados.Catalogos.Plataforma.SeguimientoFolios)
+        {
+          <div class="panel-body">
+            <div class="form-group">
+              <div class="col-md-3">
+                @Html.LabelFor(model => model.NombreReferencia2, new { @class = "form-label" })
+                <span class="text-danger"></span>
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="fa fa-commenting-o"></i></span>
+                  @Html.TextBoxFor(model => model.NombreReferencia2, new { @class = "form-control", id = "txtNombreReferencia2", placeholder = "", Style = "max-width: none", @Readonly = "true", @disabled = "disabled" })
+                </div>
+                @Html.ValidationMessageFor(model => model.NombreReferencia2, null, new { @class = "text-danger" })
+              </div>
+
+              <div class="col-md-3">
+                @Html.LabelFor(model => model.TelefonoReferencia2, new { @class = "form-label" })
+                <span class="text-danger"></span>
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="fa fa-commenting-o"></i></span>
+                  @Html.TextBoxFor(model => model.TelefonoReferencia2, new { @class = "form-control", id = "txtTelefonoReferencia2", Type = "number", MaxLength = 10, placeholder = "", Style = "max-width: none", @Readonly = "true", @disabled = "disabled" })
+                </div>
+                @Html.ValidationMessageFor(model => model.TelefonoReferencia2, null, new { @class = "text-danger" })
+              </div>
+
+              <div class="col-md-3">
+                @Html.LabelFor(model => model.ResultadoVTReferencia2ID, new { @class = "form-label" })
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+                  @Html.DropDownListFor(model => model.ResultadoVTReferencia2ID, ViewBag.ResultadoVTRef2 as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control", id = "cboResultadoVTRef2", @Readonly = "true", @disabled = "disabled" })
+                  @Html.HiddenFor(x => x.ResultadoVTReferencia2ID)
+                </div>
+              </div>
+
+            </div>
+          </div>
+        }
+        <div class="panel-body">
+          <div class="form-group">
+
+            @Html.LabelFor(model => model.Comentarios, new { @class = "form-label" })
+            <span class="text-danger"></span>
+            <div class="input-group">
+              <span class="input-group-addon"><i class="fa fa-commenting-o"></i></span>
+              @Html.TextAreaFor(model => model.Comentarios, new { @class = "form-control", placeholder = "", Style = "max-width: none", @Readonly = "true", @disabled = "disabled" })
+            </div>
+            @Html.ValidationMessageFor(model => model.Comentarios, null, new { @class = "text-danger" })
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <div class="form-group">
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.CoincidenciaLNID, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+                @Html.DropDownListFor(model => model.CoincidenciaLNID, ViewBag.CoincidenciaLN as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control", @Readonly = "true", @disabled = "disabled" })
+                @Html.HiddenFor(x => x.CoincidenciaLNID)
+              </div>
+              @Html.ValidationMessageFor(model => model.CoincidenciaLNID, null, new { @class = "text-danger" })
+            </div>
+
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+}
+@* Contenedor para cargar las pantallas modales *@
+<div class="modal fade" id="ModalEditar" tabindex="-1" role="dialog"></div>
+
+@* Toda referencia de Scripts escribir dentro de la section "scripts" *@
+@section scripts{
+  @* Si realiza una referencia de un script el Metodo @Url.ContentArea("~/") ejem: <script type="text/javascript" src="@Url.ContentArea("~/Scripts/...")"></script> *@
+
+  @Scripts.Render("~/bundles/jqueryval")
+  @Scripts.Render("~/bundles/jqueryajax")
+  @Scripts.Render("~/bundles/modernizr")
+
+  <script>
+    $(function () {
+      $("form").submit(function () {
+        var lClaseCredito = $("#cboClaseCredito option:selected").text();
+        $("#NombreClaseCredito").val(lClaseCredito);
+
+        var lTipoSolicitud = $("#cboNombreTipoSolicitud option:selected").text();
+        $("#NombreTipoSolicitud").val(lTipoSolicitud);
+
+        var lClasificacionCliente = $("#cboNombreClasificacionCliente option:selected").text();
+        $("#NombreClasificacionCliente").val(lClasificacionCliente);
+
+        var lFuerzaVenta = $("#cboNombreFuerzaVenta option:selected").text();
+        $("#NombreFuerzaVenta").val(lFuerzaVenta);
+
+
+      });
+    });
+  </script>
+  <script>
+    $("input").keydown(function (e) {
+      var keyCode = e.which;
+      if (keyCode == 13) {
+        event.preventDefault();
+        return false;
+      }
+    });
+  </script>
+}
+

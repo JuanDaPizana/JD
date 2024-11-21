@@ -1,0 +1,223 @@
+﻿@model ValidacionTelefonica.Entities.ReglaValidacionEditar
+@{
+  ViewBag.Title = "Editar"; //Titulo de la pestaña
+  ViewBag.HeaderIcon = "fa-cube";
+  ViewBag.HeaderTitle = "Editar";
+  ViewBag.HeaderDescription = "Editar Regla de Validación";
+  //ViewBag.Header = false; // Si desea ocultar la cabecera
+}
+
+@* Toda referencia de estilos escribir dentro de la secccion "styles" *@
+@section styles{
+  @* Utilice el Metodo @Url.ContentArea("~/*") para obtener la url relativa del archivo *@
+  <link href="@Url.ContentArea("~/Content/Site.css")" rel="stylesheet" />
+}
+
+@using (Html.BeginForm("Editar", "Reglas", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+  @Html.AntiForgeryToken()
+
+  @Html.HiddenFor(x => x.ReglaValidacionID)
+
+  @* Button Bar *@
+  <nav class="navbar-button">
+
+    <div class="nav">
+      <div class="btn-group">
+        <button type="submit" class="btn btn-default navbar-btn"><i class="fa fa-floppy-o"></i> Guardar</button>
+      </div>
+    </div>
+
+    <div class="nav navbar-button-right">
+      <div class="btn-group">
+        <a href="@Url.Action("Index", "Reglas")" class="btn btn-default navbar-btn" data-tooltip="" title="" data-original-title="Atrás"><i class="fa fa-arrow-circle-left"></i></a>
+        <a href="@Request.RawUrl" class="btn btn-default navbar-btn" data-tooltip="" title="Recargar"><i class="fa fa-refresh"></i></a>
+      </div>
+    </div>
+  </nav>
+
+  <div>
+    @* TODO CONTENIDO HTML AQUÍ *@
+
+    <div class="col-md-12">
+      <div class="panel panel-primary">
+        <div class="panel-heading">Reglas de Validación </div>
+
+        <div class="panel-body">
+          <div class="form-group">
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.CoincidenciaLNID, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+                @Html.DropDownListFor(model => model.CoincidenciaLNID, ViewBag.CoincidenciaLN as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control" })
+                @Html.HiddenFor(x => x.CoincidenciaLNID)
+              </div>
+              @Html.ValidationMessageFor(model => model.CoincidenciaLNID, null, new { @class = "text-danger" })
+
+            </div>
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.PlataformaID, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+                @Html.DropDownListFor(model => model.PlataformaID, ViewBag.Plataforma as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control" })
+                @Html.HiddenFor(x => x.PlataformaID)
+              </div>
+              @Html.ValidationMessageFor(model => model.PlataformaID, null, new { @class = "text-danger" })
+
+            </div>
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.ProyectoID, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+                @Html.DropDownListFor(model => model.ProyectoID, ViewBag.Proyecto as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control" })
+                @Html.HiddenFor(x => x.ProyectoID)
+              </div>
+              @Html.ValidationMessageFor(model => model.ProyectoID, null, new { @class = "text-danger" })
+
+            </div>
+
+            <div class="col-md-3">
+             
+                @Html.Label("Regla Activa", new { @class = "form-label" })
+                <div class="input-group mb-3">
+                  <span class="input-group-addon">
+
+                    @Html.CheckBoxFor(model => model.EstaActivo, new { @class = "checkbox", id = "chkEstaActiva", onclick = "Habilitar()" })
+
+                  </span>
+                  @Html.Label("Regla Activa", new { @class = "form-control" })
+                </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <div class="form-group">
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.ResultadoVTCasaID, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+                @Html.DropDownListFor(model => model.ResultadoVTCasaID, ViewBag.ResultadoVTCasa as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control" })
+                @Html.HiddenFor(x => x.ResultadoVTCasaID)
+
+              </div>
+              @Html.ValidationMessageFor(model => model.ResultadoVTCasaID, null, new { @class = "text-danger" })
+
+            </div>
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.ResultadoVTOficinaID, new { @class = "form-label" })
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+                @Html.DropDownListFor(model => model.ResultadoVTOficinaID, ViewBag.ResultadoVTOficina as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control", id = "cboResultadoVTOficina" })
+                @Html.HiddenFor(x => x.ResultadoVTOficinaID)
+
+              </div>
+
+            </div>
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.ResultadoVTReferencia1ID, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+                @Html.DropDownListFor(model => model.ResultadoVTReferencia1ID, ViewBag.ResultadoVTReferencia1 as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control" })
+                @Html.HiddenFor(x => x.ResultadoVTReferencia1ID)
+
+              </div>
+              @Html.ValidationMessageFor(model => model.ResultadoVTReferencia1ID, null, new { @class = "text-danger" })
+
+            </div>
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.ResultadoVTReferencia2ID, new { @class = "form-label" })
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+                @Html.DropDownListFor(model => model.ResultadoVTReferencia2ID, ViewBag.ResultadoVTReferencia2 as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control", id = "cboResultadoVTRef2" })
+                @Html.HiddenFor(x => x.ResultadoVTReferencia2ID)
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-12">
+      <div class="panel panel-primary">
+        <div class="panel-heading">Resultados</div>
+
+        <div class="panel-body">
+          <div class="form-group">
+            <div class="col-md-3">
+            </div>
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.ResultadoFinalEstatusID, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+                @Html.DropDownListFor(model => model.ResultadoFinalEstatusID, ViewBag.ResultadoFinalEstatus as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control" })
+                @Html.HiddenFor(x => x.ResultadoFinalEstatusID)
+
+              </div>
+              @Html.ValidationMessageFor(model => model.ResultadoFinalEstatusID, null, new { @class = "text-danger" })
+
+            </div>
+
+            <div class="col-md-3">
+              @Html.LabelFor(model => model.ResultadoFinalVTID, new { @class = "form-label" })
+              <span class="text-danger">*</span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-address-book"></i></span>
+
+                @Html.DropDownListFor(model => model.ResultadoFinalVTID, ViewBag.ResultadoFinalVT as SelectList, "[Seleccione un valor]", htmlAttributes: new { @class = "form-control" })
+                @Html.HiddenFor(x => x.ResultadoFinalVTID)
+
+              </div>
+              @Html.ValidationMessageFor(model => model.ResultadoFinalVTID, null, new { @class = "text-danger" })
+
+            </div>
+            <div class="col-md-3">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+}
+@* Contenedor para cargar las pantallas modales *@
+<div class="modal fade" id="ModalEditar" tabindex="-1" role="dialog"></div>
+
+@* Toda referencia de Scripts escribir dentro de la section "scripts" *@
+@section scripts{
+  @* Si realiza una referencia de un script el Metodo @Url.ContentArea("~/") ejem: <script type="text/javascript" src="@Url.ContentArea("~/Scripts/...")"></script> *@
+
+  @Scripts.Render("~/bundles/jqueryval")
+  @Scripts.Render("~/bundles/jqueryajax")
+  @Scripts.Render("~/bundles/modernizr")
+
+  <script>
+    $('#cboResultadoVTRef2-error').hide();
+    $('#cboResultadoVTOficina-error').hide();
+
+  </script>
+
+}
+

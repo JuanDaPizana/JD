@@ -1,0 +1,294 @@
+﻿@using System.Web.Optimization;
+@{
+  ViewBag.Title = "Consultar Folios de Validación Telefónica"; //Titulo de la pestaña
+  ViewBag.HeaderIcon = "fa-cube";
+  ViewBag.HeaderTitle = "Consultar Folios";
+  ViewBag.HeaderDescription = "Permite visualizar los folios de validación telefónica";
+  //ViewBag.Header = false; // Si desea ocultar la cabecera
+
+  var lFechaMinimo = DateTime.Now.AddMonths(-3);
+  var lFechaActual = DateTime.Now;
+
+  var lNumeroCelular = string.Empty;
+  var lRFC = string.Empty;
+
+
+}
+
+@* Toda referencia de estilos escribir dentro de la secccion "styles" *@
+@section styles{
+  @* Utilice el Metodo @Url.ContentArea("~/*") para obtener la url relativa del archivo *@
+  <link href="@Url.ContentArea("~/Content/Site.css")" rel="stylesheet" />
+  @Styles.Render("~/Content/datetimepicker")
+  @Styles.Render("~/content/jqueryui")
+}
+
+@* Button Bar *@
+<nav class="navbar-button">
+
+  <div class="nav">
+    <div class="btn-group">
+      @if (ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.AsesorRegistra || ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Supervisor || ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Jefe || ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.AsesorValida)
+      {
+        <a href="@Url.Action("Registrar")" class="btn btn-default navbar-btn"><i class="fa fa-plus fa-fw"></i>Registrar</a>
+      }
+      @if (ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Supervisor || ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Jefe)
+      {
+        <button type="submit" class="btn btn-default navbar-btn btn-success" id="btnExportar" onclick="Exportar()"><i class="fa fa-file-excel-o fa-fw"></i>Exportar</button>
+      }
+    </div>
+
+    <div>
+      <a class="btn btn-default fltrgt" data-ajax="true" data-toggle="modal" data-target="#Modal" data-ajax-method="GET" data-ajax-mode="replace" data-ajax-update="#Modal" href="@Url.Action("_ConsultarCoincidencias", "ValidacionTelefonica")">
+        <i class="fa fa-search fa-fw"></i>Buscar Coincidencias
+      </a>
+    </div>
+  </div>
+
+  <div class="nav navbar-button-right">
+    <div class="btn-group">
+      <a href="@Url.Action("Index")" class="btn btn-default navbar-btn" data-tooltip="" title="Recargar"><i class="fa fa-refresh"></i></a>
+    </div>
+  </div>
+</nav>
+
+<div>
+  @* TODO CONTENIDO HTML AQUÍ *@
+
+  <div class="table-responsive">
+
+    <div class="col-sm-12 table-header" id="Filtros" style="padding-bottom: 10px">
+      <div class="row">
+
+        <div class="col-md-3">
+          <div class="input-group">
+            <span class="input-group-addon" data-tooltip="" title="Fecha de Inicio"><i class="fa fa-user-check-o"></i></span>
+            <input type="text" id="Folio" name="Folio" class="form-control" placeholder="Folio" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="input-group">
+            <span class="input-group-addon" data-tooltip="" title="Fecha de Inicio"><i class="fa fa-calendar-check-o"></i></span>
+            <input type="text" id="Inicio" name="Inicio" class="form-control datepicker" placeholder="Fecha Inicio (dd/mm/aaaa)" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="input-group">
+            <span class="input-group-addon" data-tooltip="" title="Fecha de Inicio"><i class="fa fa-calendar-check-o"></i></span>
+            <input type="text" id="Fin" name="Fin" class="form-control datepicker" placeholder="Fecha Fin (dd/mm/aaaa)" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="input-group">
+            <button id="btnBuscar" class="btn btn-default fltrgt" type="submit" style="position: absolute; width:85px; left:75px" onclick="Filtrar()"><i class="fa fa-search fa-fw"></i>Buscar</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <table class="table table-selectable table-dark table-hover table-condensed table-selectable" id="DataTable" style="">
+
+      <thead>
+        <tr>
+          <th class="text-center">Folio de Validacion</th>
+          <th class="text-left">Fecha de Registro</th>
+          <th class="text-left">Fuerza de Venta</th>
+          <th class="text-left">Folio</th>
+          <th class="text-left">Plataforma</th>
+          <th class="text-left">Estatus Final de Validación</th>
+          <th class="text-left">Resultado Final</th>
+          <th class="text-center">Estatus</th>
+          @if (ViewBag.PerfilID != ValidacionTelefonica.Entities.Enumerados.Rol.AsesorConsultor)
+          {
+            <th class="text-center"><i class="fa fa-cog"></i></th>
+          }
+
+        </tr>
+      </thead>
+
+      <tbody>
+        @foreach (ValidacionTelefonica.Entities.ValidacionTelefonicaConsultar lDatos in Model)
+        {
+          <tr>
+            <td class="text-center">@lDatos.FolioValidacionID</td>
+            <td class="text-left">@lDatos.FechaRegistro</td>
+            <td class="text-left">@lDatos.FuerzaVenta</td>
+            <td class="text-left">@lDatos.FolioUnico</td>
+            <td class="text-left">@lDatos.NombrePlataforma</td>
+            <td class="text-left">@lDatos.ResultadoFinalEstatus</td>
+            <td class="text-left">@lDatos.ResultadoFinalVT</td>
+
+            <td class="text-center">
+              @if (lDatos.EstatusID == ValidacionTelefonica.Entities.Enumerados.EstatusFolio.Registrado)
+              {
+                <span class="fa-stack fa-lg" aria-hidden="true" data-tooltip="" title="Registrado">
+                  <i class="fa fa-circle fa-stack-2x text-info"></i>
+                  <i class="fa fa-flag fa-stack-1x fa-inverse"></i>
+                </span>
+              }
+              @if (lDatos.EstatusID == ValidacionTelefonica.Entities.Enumerados.EstatusFolio.EnProceso)
+              {
+                <span class="fa-stack fa-lg" aria-hidden="true" data-tooltip="" title="En Proceso">
+                  <i class="fa fa-clock-o fa-stack-2x text-warning"></i>
+                  <i class="fa fa-clock-o  fa-inverse"></i>
+                </span>
+              }
+
+              @if (lDatos.EstatusID == ValidacionTelefonica.Entities.Enumerados.EstatusFolio.Revisado)
+              {
+                <span class="fa-stack fa-lg" aria-hidden="true" data-tooltip="" title="Revisado">
+                  <i class="fa fa-circle fa-stack-2x text-success"></i>
+                  <i class="fa fa-lock fa-stack-1x fa-inverse"></i>
+                </span>
+              }
+
+              @if (lDatos.EstatusID == ValidacionTelefonica.Entities.Enumerados.EstatusFolio.Corregido)
+              {
+                <span class="fa-stack fa-lg" aria-hidden="true" data-tooltip="" title="Corregido">
+                  <i class="fa fa-circle fa-stack-2x text-justify"></i>
+                  <i class="fa fa-wrench fa-stack-1x fa-inverse"></i>
+                </span>
+              }
+
+            </td>
+
+            @if (ViewBag.PerfilID != ValidacionTelefonica.Entities.Enumerados.Rol.AsesorConsultor)
+            {
+              <td class="text-center">
+                <div class="dropdown dropdown-row-menu">
+                  <button class="btn btn-default dropdown-toggle text-left" type="button" data-toggle="dropdown" title="Opciones">
+                    <i class="fa fa-cog"></i>
+                  </button>
+                  <ul class="dropdown-menu">
+                    @if ((lDatos.EstatusID == ValidacionTelefonica.Entities.Enumerados.EstatusFolio.Registrado) && (ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.AsesorValida || ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Supervisor || ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Jefe))
+                    {
+                      <li>
+                        <a class="dropdown-item" href="@Url.Action("Iniciar", "ValidacionTelefonica", new { pFolioValidacionID = lDatos.FolioValidacionID })">
+                          <i class="fa fa-pencil-square-o fa-fw"></i>Iniciar
+                        </a>
+                      </li>
+                    }
+                    @if (lDatos.EstatusID == ValidacionTelefonica.Entities.Enumerados.EstatusFolio.EnProceso && ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.AsesorValida)
+                    {
+                      <li>
+                        <a class="dropdown-item" href="@Url.Action("Validar", "ValidacionTelefonica", new { pFolioValidacionID = lDatos.FolioValidacionID })">
+                          <i class="fa fa-pencil-square-o fa-fw"></i>Validar
+                        </a>
+                      </li>
+                    }
+                    @if ((lDatos.EstatusID == ValidacionTelefonica.Entities.Enumerados.EstatusFolio.Revisado || lDatos.EstatusID == ValidacionTelefonica.Entities.Enumerados.EstatusFolio.Corregido) && (ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Supervisor || ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Jefe))
+                    {
+                      <li>
+                        <a class="dropdown-item" href="@Url.Action("Editar", "ValidacionTelefonica", new { pFolioValidacionID = lDatos.FolioValidacionID })">
+                          <i class="fa fa-pencil-square-o fa-fw"></i>Editar
+                        </a>
+                      </li>
+                    }
+                    @if ((lDatos.EstatusID == ValidacionTelefonica.Entities.Enumerados.EstatusFolio.Revisado || lDatos.EstatusID == ValidacionTelefonica.Entities.Enumerados.EstatusFolio.Corregido) && (ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Supervisor || ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Jefe || ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.AsesorValida))
+                    {
+                      <li>
+                        <a class="dropdown-item" href="@Url.Action("Editar", "ValidacionTelefonica", new { pFolioValidacionID = lDatos.FolioValidacionID })">
+                          <i class="fa fa-pencil-square-o fa-fw"></i>Detalle
+                        </a>
+                      </li>
+                    }
+
+                    @if (ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Supervisor || ViewBag.PerfilID == ValidacionTelefonica.Entities.Enumerados.Rol.Jefe)
+                    {
+                      <li>
+                        <a data-ajax="true" data-toggle="modal" data-target="#Modal" data-ajax-method="GET" data-ajax-mode="replace" data-ajax-update="#Modal" href="@Url.Action("_Eliminar", "ValidacionTelefonica", new { pFolio = lDatos.FolioValidacionID})" class="dropdown-item">
+                          <i class="fa fa-trash fa-fw"></i>Eliminar
+                        </a>
+                      </li>
+                    }
+
+
+                  </ul>
+                </div>
+              </td>
+            }
+          </tr>
+        }
+
+      </tbody>
+    </table>
+
+  </div>
+</div>
+
+@* Contenedor para cargar las pantallas modales *@
+<div class="modal fade" id="Modal" tabindex="-1" role="dialog"></div>
+
+@* Toda referencia de Scripts escribir dentro de la section "scripts" *@
+@section scripts{
+  @* Si realiza una referencia de un script el Metodo @Url.ContentArea("~/") ejem: <script type="text/javascript" src="@Url.ContentArea("~/Scripts/...")"></script> *@
+  @Scripts.Render("~/bundles/datatable")
+  @Scripts.Render("~/bundles/jqueryval")
+  @Scripts.Render("~/bundles/jqueryajax")
+  @Scripts.Render("~/bundles/modernizr")
+  @Scripts.Render("~/bundles/jqueryui")
+  @Scripts.Render("~/bundles/inputmask")
+
+
+
+  <script>
+    $(document).ready(function () {
+      $("#DataTable").DataTable({
+        "paging": true,  //Activa/Desactiva la paginación.
+        order: [[1, 'desc']],
+        "columnDefs": [{ "targets": 1, "type": "date" }],
+        "filter": false,
+        "info": false //Activa/Desactiva la información de ayuda.
+      });
+    });
+  </script>
+
+
+
+  <script type="text/javascript">
+
+    var lMinimo = new Date('@lFechaMinimo.Year', '@(lFechaMinimo.Month-1)', '@lFechaMinimo.Day');
+    var lMax = new Date('@lFechaActual.Year', '@(lFechaActual.Month-1)', '@lFechaActual.Day');
+
+    $("#Inicio").datepicker({
+        dateFormat: "dd/mm/yy",
+        minDate: lMinimo,
+        maxDate: lMax
+      });
+
+      $("#Fin").datepicker({
+        dateFormat: "dd/mm/yy",
+        minDate: lMinimo,
+        maxDate: lMax
+      });
+
+
+  function Filtrar() {
+    //alert("Valor: ");
+
+    var lFechaInicio = $("#Inicio").val();
+    var lFechaFin = $("#Fin").val();
+    var lFolio = $("#Folio").val();
+
+    window.location.href = '/ValidacionTelefonica/ValidacionTelefonica/ConsultarPorFiltros?pFechaInicio=' + lFechaInicio + '&pFechaFin=' + lFechaFin + '&pFolio=' + lFolio;
+
+  }
+
+   function Exportar() {
+    //alert("Valor: ");
+
+    var lFechaInicio = $("#Inicio").val();
+    var lFechaFin = $("#Fin").val();
+
+    window.location.href = '/ValidacionTelefonica/ValidacionTelefonica/ExportarReporte?pFechaInicio=' + lFechaInicio + '&pFechaFin=' + lFechaFin;
+
+      }
+
+  </script>
+}
+

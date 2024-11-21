@@ -1,0 +1,237 @@
+<#@ template language="C#" HostSpecific="True" #>
+<#@ output extension="cs" #>
+<#@ import namespace="System" #>
+<#@ parameter type="System.String" name="ControllerName" #>
+<#@ parameter type="System.String" name="ControllerRootName" #>
+<#@ parameter type="System.String" name="Namespace" #>
+<#@ parameter type="System.String" name="AreaName" #>
+<#
+string routePrefix;
+if (String.IsNullOrEmpty(AreaName)) 
+{
+    routePrefix = ControllerRootName;
+}
+else
+{
+    routePrefix = AreaName + "/" + ControllerRootName;
+}
+#>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+// Referencia Microsoft.AspNet.Identity.EntityFramework de Nugget Package v2.2.2
+using Microsoft.AspNet.Identity;
+// Referencia del Portal o proyecto principal
+using Telcel.Portal.MiTelcelR9;
+
+namespace <#= Namespace #>
+{
+  [Seguridad] // Seguridad del portal. Descomentar para usar la seguridad
+  [ControlErrores] // Control de errores, envio a pantalla de error automatica, registro de errores.
+    public class <#= ControllerName #> : Controller
+    {
+        // GET: <#= routePrefix #>
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+				#region Detalles
+
+        // GET: <#= routePrefix #>/Detalles/5
+        public ActionResult Detalles(int id)
+        {
+            return View();
+        }
+
+				// GET: <#= routePrefix #>/Detalles/5 - PartialVew
+				public ActionResult _Detalles(int id)
+        {
+            return PartialView();
+        }
+
+				#endregion
+
+				#region Registrar
+
+        // GET: <#= routePrefix #>/Registrar
+        public ActionResult Registrar()
+        {
+            return View();
+        }
+
+        // POST: <#= routePrefix #>/Registrar
+        [HttpPost]
+        public ActionResult Registrar(FormCollection collection)
+        {
+            try
+            {
+                // TODO: Inserta el código para registrar la entidad correspondiente
+								
+								Notificacion.Show(this, "Registro Exitoso.", NotificationType.Success);
+                return RedirectToAction("Index");
+            }
+            catch (Exception lException)
+            {
+								Notificacion.Show(this, lException.Message, NotificationType.Error);
+                return View(collection);
+            }
+        }
+
+				 // GET: <#= routePrefix #>/_Registrar - PartialView
+        public ActionResult _Registrar()
+        {
+            return PartialView();
+        }
+
+        // POST: <#= routePrefix #>/_Registrar
+        [HttpPost]
+        public ActionResult _Registrar(FormCollection collection)
+        {
+            try
+            {
+                // TODO: Inserta el código para registrar la entidad correspondiente
+
+								Notificacion.Show(this, "Registro Exitoso.", NotificationType.Success);
+            }
+            catch (Exception lException)
+            {
+								Notificacion.Show(this, lException.Message, NotificationType.Error);
+            }
+					return RedirectToAction("Index");
+        }
+
+				#endregion
+
+				#region Editar
+
+        // GET: <#= routePrefix #>/Editar/5
+        public ActionResult Editar(int id)
+        {
+            return View();
+        }
+
+        // POST: <#= routePrefix #>/Editar/5
+        [HttpPost]
+        public ActionResult Editar(int id, FormCollection collection)
+        {
+            try
+            {
+                // TODO: Inserta el código para editar la entidad correspondiente
+
+								Notificacion.Show(this, "Cambios guardados correctamente.", NotificationType.Success);
+                return RedirectToAction("Index");
+            }
+            catch (Exception lException)
+            {
+								Notificacion.Show(this, lException.Message, NotificationType.Error);
+                return View(collection);
+            }
+        }
+
+				// GET: <#= routePrefix #>/_Editar/5 - PartialView
+        public ActionResult _Editar(int id)
+        {
+            return PartialView();
+        }
+
+        // POST: <#= routePrefix #>/_Editar/5
+        [HttpPost]
+        public ActionResult _Editar(int id, FormCollection collection)
+        {
+            try
+            {
+                // TODO: Inserta el código para editar la entidad correspondiente
+
+								Notificacion.Show(this, "Cambios guardados correctamente.", NotificationType.Success);
+            }
+            catch (Exception lException)
+            {
+								Notificacion.Show(this, lException.Message, NotificationType.Error);
+            }
+					return RedirectToAction("Index");
+        }
+
+				#endregion
+
+				#region Eliminar
+
+        // GET: <#= routePrefix #>/Eliminar/5
+        public ActionResult Eliminar(int id)
+        {
+            return View();
+        }
+
+        // POST: <#= routePrefix #>/Eliminar/5
+        [HttpPost]
+        public ActionResult Eliminar(int id, FormCollection collection)
+        {
+            try
+            {
+                // TODO: Inserta el código para eliminar la entidad correspondiente
+
+								Notificacion.Show(this, "Registro eliminado correctamente.", NotificationType.Success);
+                return RedirectToAction("Index");
+            }
+            catch (Exception lException)
+            {
+								Notificacion.Show(this, lException.Message, NotificationType.Error);
+                return View(collection);
+            }
+        }
+
+				// GET: <#= routePrefix #>/_Eliminar/5 - PartialView
+        public ActionResult _Eliminar(int id)
+        {
+            return View();
+        }
+
+        // POST: <#= routePrefix #>/_Eliminar/5
+        [HttpPost]
+        public ActionResult _Eliminar(int id, FormCollection collection)
+        {
+            try
+            {
+                // TODO: Inserta el código para eliminar la entidad correspondiente
+
+								Notificacion.Show(this, "Registro eliminado correctamente.", NotificationType.Success);
+            }
+            catch (Exception lException)
+            {
+								Notificacion.Show(this, lException.Message, NotificationType.Error);
+            }
+					return RedirectToAction("Index");
+        }
+
+				#endregion
+
+				#region Helpers
+
+				private PartialViewResult _NotFound()
+				{
+				  Response.StatusCode = 404;
+				  return PartialView("_NotFound");
+				}
+
+				private ActionResult PartialNotificationView(string message, NotificationType notificationType = NotificationType.Error)
+				{
+					var view = "_" + notificationType.ToString();
+					return PartialView(view, message);
+				}
+
+				private ActionResult RedirectToLocal(string returnUrl)
+				{
+					if (Url.IsLocalUrl(returnUrl))
+					{
+						return Redirect(returnUrl);
+					}
+					return RedirectToAction("Index");
+				}
+
+				#endregion
+
+    }
+}

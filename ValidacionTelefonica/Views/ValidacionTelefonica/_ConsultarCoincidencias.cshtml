@@ -1,0 +1,75 @@
+﻿@model ValidacionTelefonica.Entities.BusquedaCoincidencia
+@{
+  ViewBag.Titulo = "Eliminar Folio de Validación";
+
+}
+
+@using (Html.BeginForm("_ConsultarCoincidencias", "ValidacionTelefonica", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+  @Html.AntiForgeryToken()
+
+
+  <div class="modal-dialog" role="document" style="width: 700px">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Consultar Coincidencias</h4>
+
+        <div class="col-md-12">
+          <div class="row" style="padding-top: 25px">
+            <div class="col-md-4">
+              @Html.LabelFor(model => model.RFC, new { @class = "form-label" })
+              <span class="text-danger"></span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-commenting-o"></i></span>
+                @Html.TextBoxFor(model => model.RFC, new { @class = "form-control", id = "txtRFC", Type = "text", placeholder = "", Style = "max-width: none" })
+                @Html.HiddenFor(model => model.RFC)
+              </div>
+              @Html.ValidationMessageFor(model => model.RFC, null, new { @class = "text-danger" })
+
+            </div>
+
+            <div class="col-md-4">
+              @Html.LabelFor(model => model.Nombre, new { @class = "form-label" })
+              <span class="text-danger"></span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-commenting-o"></i></span>
+                @Html.TextBoxFor(model => model.Nombre, new { @class = "form-control", id = "txtRFC", Type = "text", placeholder = "", Style = "max-width: none" })
+                @Html.HiddenFor(model => model.Nombre)
+              </div>
+              @Html.ValidationMessageFor(model => model.Nombre, null, new { @class = "text-danger" })
+
+            </div>
+
+            <div class="col-md-4">
+              @Html.LabelFor(model => model.NumeroTelefono, new { @class = "form-label" })
+              <span class="text-danger"></span>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-commenting-o"></i></span>
+                @Html.TextBoxFor(model => model.NumeroTelefono, new { @class = "form-control", Type = "number", placeholder = "", Style = "max-width: none" })
+                @Html.HiddenFor(model => model.NumeroTelefono)
+              </div>
+              @Html.ValidationMessageFor(model => model.NumeroTelefono, null, new { @class = "text-danger" })
+
+            </div>
+
+
+
+          </div>
+        </div>
+      </div>
+      <div class="modal-body">
+        @* TODO CONTENIDO HTML AQUÍ *@
+
+      </div>
+      <div class="panel-footer text-right">
+        <button type="submit" id="btnBuscar" class="btn btn-default"><i class="fa fa-search text-success"></i> Buscar</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times-circle-o text-danger"></i> Cancelar</button>
+      </div>
+    </div>
+  </div>
+}
+
+@Scripts.Render("~/bundles/jqueryval")

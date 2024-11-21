@@ -1,0 +1,185 @@
+﻿<#@ template language="C#" HostSpecific="True" #>
+<#@ output extension=".cshtml" #>
+<#@ include file="Imports.include.t4" #>
+@model <#= ViewDataTypeName #>
+<#
+// "form-control" attribute is only supported for all EditorFor() in System.Web.Mvc 5.1.0.0 or later versions, except for checkbox, which uses a div in Bootstrap
+string boolType = "System.Boolean";
+Version requiredMvcVersion = new Version("5.1.0.0");
+bool isControlHtmlAttributesSupported = MvcVersion >= requiredMvcVersion;
+// The following chained if-statement outputs the file header code and markup for a partial view, a view using a layout page, or a regular view.
+#>
+
+@{ 
+    ViewBag.Titulo = "Editar <#= ViewDataTypeShortName #>";
+}
+
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jqueryval")
+
+@* Si requiere realizar algun cambio de estilos css, escríbala en la página principal (Index) en la sección "styles" *@ 
+
+@* Para cambiar el tamaño del modal usa las clases modal-sm, modal-lg, modal-xl o modal-xxl 
+    en conjunto de clase modal-dialog de la linea de abajo ejem: class="modal-dialog modal-lg" *@
+<div class="modal-dialog" role="document">
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+			<div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <h3 class="modal-title">@ViewBag.Titulo</h3>
+        </div>
+			<div class="modal-body">
+    <div class="well form-horizontal">
+
+<# 
+    if (isControlHtmlAttributesSupported) {
+#>
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+<#        
+    } else {
+#>
+        @Html.ValidationSummary(true)
+<#      
+    }
+#>
+<#
+foreach (PropertyMetadata property in ModelMetadata.Properties) {
+    if (property.Scaffold && !property.IsAssociation) {
+        if (property.IsPrimaryKey) {
+#>
+        @Html.HiddenFor(model => model.<#= property.PropertyName #>)
+
+<#
+        } else if (!property.IsReadOnly) {
+#>
+        <div class="form-group">
+            <div class="col-md-12">
+<#
+            if (property.IsForeignKey) {
+#>
+            @Html.LabelFor(model => model.<#= property.PropertyName #>, "<#= GetAssociationName(property) #>", htmlAttributes: new {  })
+<#
+            } else {
+#>
+            @Html.LabelFor(model => model.<#= property.PropertyName #>, htmlAttributes: new {  })
+<#
+            }
+#>
+							<div class="input-group">
+<#
+            bool isCheckbox = property.TypeName.Equals(boolType);
+            if (property.IsForeignKey) {
+#>
+<# 
+            if (isControlHtmlAttributesSupported) {
+#>
+								<span class="input-group-addon"><i class="fa fa-keyboard-o"></i></span>
+	              @Html.DropDownList("<#= property.PropertyName #>", null, htmlAttributes: new { @class = "form-control" })
+<#
+            } else {
+#>
+								<span class="input-group-addon"><i class="fa fa-keyboard-o"></i></span>
+                @Html.DropDownList("<#= property.PropertyName #>", String.Empty)
+<#
+            }
+#>
+<#
+            } else  if (isControlHtmlAttributesSupported) {
+                if (isCheckbox) {
+#>
+                <div class="">
+<#
+                    PushIndent("    ");
+#>
+									<label class="switch">
+										@Html.EditorFor(model => model.<#= property.PropertyName #>)
+										<i class="fa fa-2x"></i>
+									</label>
+<#
+                } else if (property.IsEnum && !property.IsEnumFlags) {
+#>
+                <span class="input-group-addon"><i class="fa fa-keyboard-o"></i></span>
+                @Html.EnumDropDownListFor(model => model.<#= property.PropertyName #>, htmlAttributes: new { @class = "form-control" })
+<#
+                } else {
+#>
+                <span class="input-group-addon"><i class="fa fa-keyboard-o"></i></span>
+                @Html.EditorFor(model => model.<#= property.PropertyName #>, new { htmlAttributes = new { @class = "form-control" } })
+<#
+                }
+            } else {
+#>
+                <span class="input-group-addon"><i class="fa fa-keyboard-o"></i></span>
+                @Html.EditorFor(model => model.<#= property.PropertyName #>)
+<#
+            }
+#>
+</div>
+<# 
+            if (isControlHtmlAttributesSupported) {
+#>
+                @Html.ValidationMessageFor(model => model.<#= property.PropertyName #>, "", new { @class = "text-block text-danger" })
+<#        
+            } else {
+#>
+                @Html.ValidationMessageFor(model => model.<#= property.PropertyName #>)
+<#      
+            }
+#>
+<#
+            if (isCheckbox && isControlHtmlAttributesSupported) {
+                PopIndent();
+#>
+                </div>
+<#
+            }
+#>
+            </div>
+        </div>
+
+<#
+        }
+    }
+}
+#>
+    </div>
+		</div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            <button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o">&nbsp;</i>Guardar Cambios</button>
+        </div>
+    </div>
+} 
+</div>
+
+@* Si requiere realizar alguna función de JavaScript o Jquery, escríbala en la página principal (Index) en la sección "scripts" *@ 
+<#
+if(IsLayoutPageSelected && IsBundleConfigPresent) {
+#>
+<#
+}
+#>
+<#
+else if(IsLayoutPageSelected && ReferenceScriptLibraries) {
+#>
+
+<#
+}
+#>
+<#
+// The following code closes the tag used in the case of a view using a layout page and the body and html tags in the case of a regular view page
+#>
+<#
+if(!IsPartialView && !IsLayoutPageSelected) {
+    ClearIndent();
+#>
+</body>
+</html>
+<#
+}
+#>
+<#@ include file="ModelMetadataFunctions.cs.include.t4" #>

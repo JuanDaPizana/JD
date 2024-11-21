@@ -1,0 +1,115 @@
+﻿@model IEnumerable<ValidacionTelefonica.Entities.FolioValidacionCoincidencia>
+@{
+  ViewBag.Title = "Resultado de Coincidencias"; //Titulo de la pestaña
+  ViewBag.HeaderIcon = "fa-cube";
+  ViewBag.HeaderTitle = "Resultado de Coincidencias";
+  ViewBag.HeaderDescription = "Permite visualizar si ya se encuentran folios con respecto a los parametros ingresados.";
+  //ViewBag.Header = false; // Si desea ocultar la cabecera
+}
+
+@* Toda referencia de estilos escribir dentro de la secccion "styles" *@
+@section styles{
+  @* Utilice el Metodo @Url.ContentArea("~/*") para obtener la url relativa del archivo *@
+  <link href="@Url.ContentArea("~/Content/Site.css")" rel="stylesheet" />
+}
+
+@* Button Bar *@
+<nav class="navbar-button">
+
+  <div class="nav">
+    <div class="btn-group">
+    </div>
+  </div>
+
+  <div class="nav navbar-button-right">
+    <div class="btn-group">
+      <a href="@Url.Action("Index", "ValidacionTelefonica")" class="btn btn-default navbar-btn" data-tooltip="" title="" data-original-title="Atrás"><i class="fa fa-arrow-circle-left"></i></a>
+    </div>
+  </div>
+</nav>
+
+<div>
+  @* TODO CONTENIDO HTML AQUÍ *@
+  <div class="table-responsive">
+    <div class="col-sm-12 table-header" id="Filtros" style="padding-bottom: 10px">
+      <div class="row">
+
+      </div>
+    </div>
+    <div style="width: 1138px; overflow: auto;">
+      <table class="table table-selectable table-dark table-hover table-condensed table-selectable" id="DataTable"  style="">
+
+        <thead class="table-secondary">
+          <tr>
+            <th class="text-left">FolioValidacion</th>
+            <th class="text-center">RFC</th>
+            <th class="text-center">Nombre Cliente</th>
+            <th class="text-center">Número Casa</th>
+            <th class="text-center">Resultado Casa</th>
+            <th class="text-center">Numero Oficina</th>
+            <th class="text-center">Resultado Oficina</th>
+            <th class="text-center">Numero Referencia1</th>
+            <th class="text-center">Resultado Ref1</th>
+            <th class="text-center">Numero Referencia2</th>
+            <th class="text-center">Resultado Ref2</th>
+            <th class="text-center">Comentarios</th>
+            <th class="text-center">Resultado Final </th>
+            <th class="text-center">Resultado Final Estatus</th>
+
+          </tr>
+        </thead>
+      
+        <tbody>
+
+          @foreach (ValidacionTelefonica.Entities.FolioValidacionCoincidencia lDatos in Model)
+          {
+          <tr>
+            <td class="text-center">@lDatos.FolioValidacionID</td>
+            <td class="text-center">@lDatos.RFCCliente</td>
+            <td class="text-center">@lDatos.NombreCliente</td>
+            <td class="text-center">@lDatos.NumeroCasa</td>
+            <td class="text-center">@lDatos.ResultadoCasa</td>
+            <td class="text-center">@lDatos.NumeroOficina</td>
+            <td class="text-center">@lDatos.ResultadoOficina</td>
+            <td class="text-center">@lDatos.NumeroReferencia1</td>
+            <td class="text-center">@lDatos.ResultadoRef1</td>
+            <td class="text-center">@lDatos.NumeroReferencia2</td>
+            <td class="text-center">@lDatos.Resultadoref2</td>
+            <td class="text-center">@lDatos.Comentarios</td>
+            <td class="text-center">@lDatos.ResultadoFinalVT</td>
+            <td class="text-center">@lDatos.ResultadoEstusFinal</td>
+
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+@* Contenedor para cargar las pantallas modales *@
+<div class="modal fade" id="Modal" tabindex="-1" role="dialog"></div>
+
+@* Toda referencia de Scripts escribir dentro de la section "scripts" *@
+@section scripts{
+  @* Si realiza una referencia de un script el Metodo @Url.ContentArea("~/") ejem: <script type="text/javascript" src="@Url.ContentArea("~/Scripts/...")"></script> *@
+
+  @Scripts.Render("~/bundles/datatable")
+  @Scripts.Render("~/bundles/jqueryval")
+  @Scripts.Render("~/bundles/jqueryajax")
+  @Scripts.Render("~/bundles/modernizr")
+  @Scripts.Render("~/bundles/jqueryui")
+
+  <script>
+    $(document).ready(function () {
+      $("#DataTable").DataTable({
+        "paging": true,  //Activa/Desactiva la paginación.
+        order: [[0, 'desc']],
+        "filter": false,
+        "info": false //Activa/Desactiva la información de ayuda.
+      });
+    });
+  </script>
+}
+
